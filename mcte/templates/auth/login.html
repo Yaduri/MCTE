@@ -1,12 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    Login
-</body>
-</html>
+{% extends "layout.html" %}
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<div class="container w-50">
+    <h3>Login</h3>
+    {% if messages %}
+    {% for message in messages %}
+    <span>
+        {{ message }}</span>
+    {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" name="username" placeholder="Seu usuário" autofocus="" autocomplete="username" maxlength="150" required="" id="id_username" data-listener-added_744153e9="true">
+        </div>
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Sua senha" autocomplete="current-password" required="" id="id_password">
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+</div>
+{% endblock %}

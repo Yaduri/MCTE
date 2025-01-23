@@ -43,25 +43,16 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">Escolher Time</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Categorias</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">F.P</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Gastos</a>
-                        </li>
                         {% endif %}
                     </ul>
                     <div class="d-flex">
                         {% if not user.is_authenticated %}
                         <a href="{% url 'login' %}" type="button" class="btn btn-outline-light me-2">Login</a>
-                        <a href="" type="button" class="btn btn-warning">Cadastrar-se</a>
+                        <a href="{% url 'signup' %}" type="button" class="btn btn-warning">Cadastrar-se</a>
                         {% endif %}
 
                         {% if user.is_authenticated %}
-                        <a href="" type="button" class="btn btn-warning">Sair</a>
+                        <a href="{% url 'logout' %}" type="button" class="btn btn-warning">Sair</a>
                         {% endif %}
                     </div>
                 </div>

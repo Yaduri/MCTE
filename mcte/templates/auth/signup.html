@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Página Inicial
+{% endblock %}
+
+{% block content %}
+<div class="container w-50">
+    <h3>Cadastro</h3>
+    {% for message in messages %}
+    <span>
+        {{ message }}</span>
+    {% endfor %}
+
+    <form method="POST" action="{% url 'signup' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameHelp" placeholder="Nome de Usuário" autofocus="" required>
+        </div>
+        <div class="mb-3">
+            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailhelp" placeholder="Email" required>
+        </div>
+        <div class="mb-3">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Senha" required>
+        </div>
+        <div class="mb-3">
+            <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirme sua senha" required>
+            <span id='message'></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </form>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    $('#password, #password2').on('keyup', function() {
+        if ($('#password').val() == $('#password2').val()) {
+            $('#message').html('Senhas iguais').css('color', 'green');
+        } else
+            $('#message').html('As senhas não conferem').css('color', 'red');
+    });
+</script>
+{% endblock %}
