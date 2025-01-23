@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse
@@ -47,9 +48,21 @@ def signup(request):
         messages.add_message(request, messages.INFO, "Nome de usuário ou email já cadastrado")
         return redirect('signup')
                 
+@login_required
 def carreira(request):
-    return redirect('index')
+    return render(request, 'carreira/index.html')
 
+@login_required
+def meu_perfil(request):
+    user = User.objects.get(pk=request.user.id)
+    if request.method == "GET":
+        return render(request, 'mcte/meu_perfil.html')
+    user.username = request.POST["username"]
+    user.email = request.POST["email"]
+    user.first_name = request.POST["first_name"]
+    user.last_name = request.POST["last_name"]
+    user.save()
+    return redirect('meu_perfil')
 
 def logout_view(request):
     logout(request)
