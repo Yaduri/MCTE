@@ -13,6 +13,7 @@ def render(request, nome_template:str, contexto = {}):
 def index(request):
     return render(request, 'mcte/index.html')
 
+# Login
 def login_view(request):
     if request.method == "GET":
         return render(request, 'auth/login.html')
@@ -29,12 +30,13 @@ def login_view(request):
             messages.add_message(request, messages.INFO, "Nome de usuário/email ou senha incorretos")
             return redirect('login')
 
+# Cadastro Conta
 def signup(request):
     if request.method == "GET":
         return render(request, 'auth/signup.html')
     else:
         username = request.POST["username"]
-        email = request.POST["username"]
+        email = request.POST["email"]
         password = request.POST["password"]
         if not User.objects.filter(username=username):
             if not User.objects.filter(email=email):
@@ -45,6 +47,9 @@ def signup(request):
         messages.add_message(request, messages.INFO, "Nome de usuário ou email já cadastrado")
         return redirect('signup')
                 
+def carreira(request):
+    return redirect('index')
+
 
 def logout_view(request):
     logout(request)
