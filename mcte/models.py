@@ -28,6 +28,9 @@ class Jogador(models.Model):
     nome = models.CharField(max_length=50)
     data_nascimento = models.DateField('Data de Nascimento')
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE)
+    
+class Temporada(models.Model):
+    data = models.CharField(max_length=50, default="24/25")
 
 class Estatistica(models.Model):
     jogos = models.IntegerField('Quantidade de Jogos')
@@ -36,4 +39,5 @@ class Estatistica(models.Model):
     jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE)
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE)
+    temporada = models.ForeignKey(Temporada, on_delete=models.CASCADE)
     
