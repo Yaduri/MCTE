@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Criar Carreira
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4 text-center">Criar Carreira</h1>
+
+    <!-- Formulário para criar uma nova carreira -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST" action="{% url 'criar_carreira' %}">
+                        {% csrf_token %}
+
+                        <!-- Campo Nome da Carreira -->
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome da Carreira</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="nome" 
+                                name="nome" 
+                                placeholder="Digite o nome da carreira" 
+                                required>
+                        </div>
+
+                        <!-- Campo Seleção de Time -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="time" class="form-label mb-0">Selecione o Time</label>
+                                <a href="{% url 'criar_time' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus-circle"></i> Adicionar Time
+                                </a>
+                            </div>
+                            <select 
+                                class="form-select selectpicker" 
+                                data-live-search="true" 
+                                id="time" 
+                                name="time" 
+                                required>
+                                <option disabled selected value="">Escolha um time</option>
+                                {% for time in times %}
+                                <option value="{{ time.id }}">{{ time.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Campo Seleção de Treinador -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="treinador" class="form-label mb-0">Selecione o Treinador</label>
+                                <a href="{% url 'criar_treinador' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus-circle"></i> Adicionar Treinador
+                                </a>
+                            </div>
+                            <select 
+                                class="form-select selectpicker" 
+                                data-live-search="true" 
+                                id="treinador" 
+                                name="treinador" 
+                                required>
+                                <option disabled selected value="">Escolha um treinador</option>
+                                {% for treinador in treinadores %}
+                                <option value="{{ treinador.id }}">{{ treinador.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Botão de Salvar -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Salvar Carreira
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

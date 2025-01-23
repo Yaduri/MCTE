@@ -1,13 +1,27 @@
+/* Estilos gerais já existentes */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
+
 main {
     flex: 1;
 }
+
 footer {
     position: relative;
     bottom: 0;
     width: 100%;
+}
+
+/* Estilos específicos para os cards de carreiras */
+.carreira-card {
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.carreira-card:hover {
+    background-color: #f8f9fa; /* Cor clara de destaque */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Efeito de leve elevação */
+    cursor: pointer;
 }

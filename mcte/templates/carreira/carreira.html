@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Minhas Carreiras
+{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <h1 class="mb-4">Minhas Carreiras</h1>
+
+    <!-- Botão para criar novas carreiras -->
+    <div class="mb-4">
+        <a href="{% url 'criar_carreira' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Nova Carreira
+        </a>
+    </div>
+
+    <!-- Lista de carreiras existentes -->
+    <div class="row justify-content-center">
+        {% for carreira in carreiras %}
+        <div class="col-12 col-md-6 col-lg-4 mb-3">
+            <!-- Envolvendo o card com o link para a página "teste" passando o id da carreira -->
+            <a href="{% url 'carreira' carreira.id %}" class="text-decoration-none">
+                <div class="card h-100 carreira-card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ carreira.nome }}</h5>
+                        <p class="card-text"><strong>Time:</strong> {{ carreira.time }}</p>
+                        <p class="card-text"><strong>Treinador:</strong> {{ carreira.treinador }}</p>
+
+                        <!-- Campo Hidden com o ID da Carreira (não será necessário, pois o ID já está na URL) -->
+                        <input type="hidden" name="carreira_id" value="{{ carreira.id }}">
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
