@@ -16,7 +16,7 @@ class Campeonato(models.Model):
     
 class Time(models.Model):
     nome = models.CharField(max_length=50)
-    #logo = Adicionar no futuro
+    logo = models.ImageField(upload_to='times/', blank=True, null=True)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta:
@@ -27,7 +27,7 @@ class Time(models.Model):
 
 class Treinador(models.Model):
     nome = models.CharField(max_length=50)
-    #foto = Adicionar no futuro
+    foto = models.ImageField(upload_to='treinadores/', blank=True, null=True)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta:
@@ -38,16 +38,23 @@ class Treinador(models.Model):
 
 class Carreira(models.Model):
     nome = models.CharField(max_length=50)
-    time = models.ForeignKey(Time, on_delete=models.CASCADE)
-    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreiras")
+    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE, related_name="carreiras")
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carreiras")
+    
+    class Meta:
+        unique_together = ('nome', 'usuario')
+    
     def __str__(self):
         return self.nome
+
 
 class Jogador(models.Model):
     nome = models.CharField(max_length=50)
     data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE)
+    foto = models.ImageField(upload_to='jogadores/', blank=True, null=True)
+    clube_atual = models.BooleanField(default=True)
     class Meta:
         ordering = ["nome"]
         
@@ -66,11 +73,18 @@ class Temporada(models.Model):
 class Estatistica(models.Model):
     jogos = models.IntegerField('Quantidade de Jogos')
     gol = models.IntegerField('Quantidade de Gols')
-    assistencia = models.IntegerField('Quantidade de Assistencias')
-    jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE)
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE)
-    temporada = models.ForeignKey(Temporada, on_delete=models.CASCADE)
+    assistencia = models.IntegerField('Quantidade de Assistências')
+    jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="estatisticas")
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name="estatisticas")
+    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="estatisticas")
+    temporada = models.ForeignKey(Temporada, on_delete=models.CASCADE, related_name="estatisticas")
+    
+    def total_participacoes(self):
+        return self.gol + self.assistencia
+
+    def __str__(self):
+        return f"{self.jogador} - {self.campeonato} ({self.temporada})"
+
     
 def criar_dados_padrao():
     cria_temporada(data="24/25")
