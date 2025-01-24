@@ -26,10 +26,11 @@ class Time(models.Model):
 
 class Jogador(models.Model):
     nome = models.CharField(max_length=50, unique=True)
-    posicao = models.CharField(max_length=3)
+    posicao = models.CharField(max_length=30)
+    time = models.CharField(max_length=50)
     criado = models.BooleanField('Jogador foi criado manualmente?', default=False)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
-    clube_atual = models.BooleanField(default=True)
+    clube_atual = models.BooleanField(default=False)
     
     #data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
     #carreira = models.ManyToManyField(Carreira, related_name="jogadores")

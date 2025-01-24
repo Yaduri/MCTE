@@ -32,9 +32,14 @@ def testT(nome:str):
         aa = Treinador(nome=nome, usuario=None)
         aa.save()
 
-def testP(time:str, jogador:str):
-    time = Time.objects.get(nome=time)
-    jogador = Jogador(nome=jogador)
+def testP(time:str, jogador:str, posicao:str):
+    teste = Jogador.objects.filter(nome=jogador)
+    try:
+        if not teste:
+            jogadors = Jogador(nome=jogador, posicao=posicao, time=time)
+            jogadors.save()
+    except:
+        ...
 
 def carregar_times(competicao:str):
     times = obter_times_compet(competicao)
@@ -42,16 +47,17 @@ def carregar_times(competicao:str):
         for time in times['teams']:
             test(time['name'], time['crest'])
             testT(time['coach']['name'])
-            #for jogador in time['squad']:
-                #testP(time['name'], jogador['name'])
+            for jogador in time['squad']:
+                testP(time['name'], jogador['name'], jogador['position'])
         else:
             print(f"{competicao}")
             
-def apagatudo():
-    Carreira.objects.all().delete()
-    Time.objects.all().delete()
-    Treinador.objects.all().delete()
-    Jogador.objects.all().delete()
+def apagatudo(apaga, cria_times):
+    if apaga:
+        Carreira.objects.all().delete()
+        Time.objects.all().delete()
+        Treinador.objects.all().delete()
+        Jogador.objects.all().delete()
     
     #TIMES
     
@@ -62,11 +68,11 @@ def apagatudo():
     #('PPL') #Liga Portugal
     #('SA') #ITALIA
     #('SSL') #Holanda
-    
-    times = ['PL', 'PD', 'BL1', 'FL1', 'PPL', 'SA', 'SSL']
-    #times = ['PL']
-    for time in times:
-        carregar_times(time)    
+    if cria_times:
+        times = ['PL', 'PD', 'BL1', 'FL1', 'PPL', 'SA', 'SSL']
+        #times = ['PL']
+        for time in times:
+            carregar_times(time)    
     
         
-#apagatudo()
+#apagatudo(False, True)
