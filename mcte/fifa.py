@@ -45,7 +45,7 @@ def carregar_times(competicao:str):
             #for jogador in time['squad']:
                 #testP(time['name'], jogador['name'])
         else:
-            print("Erro ao obter dados.")
+            print(f"{competicao}")
             
 def apagatudo():
     Carreira.objects.all().delete()

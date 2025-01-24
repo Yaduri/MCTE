@@ -88,16 +88,8 @@ def meu_perfil(request):
 @login_required
 def selecionar_carreira(request):
     carreiras_usuario = Carreira.objects.filter(usuario=request.user)
-    carreiras = []
-    #for carreira in carreiras_usuario:
-        #ctj = CarreiraTimeJogador.objects.filter(carreira=carreira)
-        #print(ctj.carreira)
-        #print(ctj.time)
-        #print(ctj.jogador)
-    for carreira in carreiras_usuario:
-        print(carreira.time_atual.logo.url)
-        print(carreira.time_atual.logo.name)
-    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras_usuario})
+    ativo = 'carreiras'
+    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras_usuario, 'ativo': ativo})
 
 @login_required
 def adicionar_temporada(request, id):
@@ -130,19 +122,17 @@ def criar_carreira(request):
     times2 = Time.objects.filter(criado=False)
     treinadores = Treinador.objects.filter(usuario=request.user)
     treinadores2 = Treinador.objects.filter(criado=False)
-    return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores, 'treinadores2': treinadores2})
+    ativo = 'carreiras'
+    return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores, 'treinadores2': treinadores2, 'ativo': ativo})
 
 
 # Criar time
 @login_required
 def criar_time(request):
     if request.method == "POST":
-        if request.FILES:
-            request.FILES['logo'].name = request.user.username + ' - ' + request.FILES['logo'].name
-        nome = request.POST['']
-        logo = request.FILES
+        nome = request.POST['nome']
         try:
-            time = Time(nome=nome, logo=logo, usuario=request.user, criado=True)
+            time = Time(nome=nome, usuario=request.user, criado=True)
             time.save()
             messages.success(request, "Time criado com sucesso!")
             return redirect('criar_carreira')
@@ -155,30 +145,34 @@ def criar_time(request):
 @login_required
 def criar_treinador(request):
     if request.method == "POST":
-        if request.FILES:
-            request.FILES['foto'].name = request.user.username + ' - ' + request.FILES['foto'].name
-        form = TreinadorForm(request.POST, request.FILES)
-        if form.is_valid():
-            treinador = form.save(commit=False)
-            treinador.usuario = request.user
+        nome = request.POST['nome']
+        try:
+            treinador = Treinador(nome=nome, usuario=request.user, criado=True)
             treinador.save()
             messages.success(request, "Treinador criado com sucesso!")
             return redirect('criar_carreira')
-        else:
+        except:
             messages.error(request, "Ocorreu um erro ao criar o treinador. Verifique os dados e tente novamente.")
-        #nome = request.POST["nome"]
-        #Treinador.objects.create(nome=nome, usuario=request.user)
-        #messages.success(request, "Treinador criado com sucesso!")
-        #return redirect('criar_carreira')
-    return render(request, 'carreira/criar_treinador.html')
+    
 
 @login_required
 def minha_carreira(request, id=0):
     if id != 0:
         carreira = get_object_or_404(Carreira, pk=id, usuario=request.user)
         temporadas = Temporada.objects.filter(carreira=carreira)
-        context = {'carreira': carreira, 'temporadas': temporadas}
+        jogadores = Jogador.objects.filter(usuario=request.user)
+        estatisticas = Estatistica.objects.filter(carreira=carreira, jogador__in=jogadores)
+        
+        ativo = 'carreiras'
+        context = {'carreira': carreira, 'temporadas': temporadas, 'estatisticas': estatisticas, 'ativo': ativo}
+        
         return render(request, 'carreira/carreira.html', context)
+
+@login_required
+def jogadores(request, car_id):
+    carreira = get_object_or_404(Carreira, pk=car_id, usuario=request.user)
+    ativo = 'jogadores'
+    return render(request, 'carreira/jogadores.html', {'carreira': carreira, 'ativo': ativo})
 
 # Logout
 def logout_view(request):

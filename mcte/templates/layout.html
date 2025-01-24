@@ -67,8 +67,23 @@
                         </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item">
+                            {% if ativo == 'carreiras' %}
+                            <a class="nav-link active" href="{% url 'selecionar_carreira' %}">Carreiras</a>
+                            {% else %}
                             <a class="nav-link" href="{% url 'selecionar_carreira' %}">Carreiras</a>
+                            {% endif %}
+                            
                         </li>
+                        {% if carreira %}
+                        <li class="nav-item">
+                            {% if ativo == 'jogadores' %}
+                            <a class="nav-link active" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
+                            {% else %}
+                            <a class="nav-link" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
+                            {% endif %}
+                            
+                        </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'meu_perfil' %}">Meu Perfil</a>
                         </li>
