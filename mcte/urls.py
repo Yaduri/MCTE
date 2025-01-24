@@ -2,8 +2,6 @@ from django.urls import path, include
 
 from . import views
 
-#from . import fifa
-
 urlpatterns = [
     path("", views.index, name="index"),
     path("auth/login/", views.login_view, name="login"),
