@@ -8,6 +8,17 @@ Criar Carreira
 <div class="container my-5">
     <h1 class="mb-4 text-center">Criar Carreira</h1>
 
+    <!-- Exibir mensagens de sucesso ou erro -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Formulário para criar uma nova carreira -->
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">

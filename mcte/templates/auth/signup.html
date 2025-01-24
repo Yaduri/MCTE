@@ -7,10 +7,16 @@ Página Inicial
 {% block content %}
 <div class="container w-50">
     <h3>Cadastro</h3>
-    {% for message in messages %}
-    <span>
-        {{ message }}</span>
-    {% endfor %}
+    <!-- Exibir mensagens de sucesso ou erro -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <form method="POST" action="{% url 'signup' %}">
         {% csrf_token %}

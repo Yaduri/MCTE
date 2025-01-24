@@ -4,121 +4,116 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 
 from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time
 
-def render(request, nome_template:str, contexto = {}):
+
+def render(request, nome_template: str, contexto={}):
     template = loader.get_template(nome_template)
     return HttpResponse(template.render(contexto, request))
 
-# Create your views here.
+
+# Página inicial
 def index(request):
     return render(request, 'mcte/index.html')
 
+
 # Login
 def login_view(request):
-    if request.method == "GET":
-        return render(request, 'auth/login.html')
-    else:
+    if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-        if user is not None:
+        if user:
             login(request, user)
-            # Redirect to a success page.
             return redirect('index')
-        else:
-            # Return an 'invalid login' error message.
-            messages.add_message(request, messages.INFO, "Nome de usuário/email ou senha incorretos")
-            return redirect('login')
+        messages.error(request, "Nome de usuário/email ou senha incorretos")
+        return redirect('login')
+    return render(request, 'auth/login.html')
 
-# Cadastro Conta
+
+# Cadastro de conta
 def signup(request):
-    if request.method == "GET":
-        return render(request, 'auth/signup.html')
-    else:
+    if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
-        if not User.objects.filter(username=username):
-            if not User.objects.filter(email=email):
+        if not User.objects.filter(username=username).exists():
+            if not User.objects.filter(email=email).exists():
                 user = User.objects.create_user(username=username, email=email, password=password)
                 user.save()
                 login(request, user)
                 return redirect('index')
-        messages.add_message(request, messages.INFO, "Nome de usuário ou email já cadastrado")
+        messages.error(request, "Nome de usuário ou email já cadastrado")
         return redirect('signup')
+    return render(request, 'auth/signup.html')
 
+
+# Perfil do usuário
 @login_required
 def meu_perfil(request):
-    user = User.objects.get(pk=request.user.id)
-    if request.method == "GET":
-        return render(request, 'mcte/meu_perfil.html')
-    user.username = request.POST["username"]
-    user.email = request.POST["email"]
-    user.first_name = request.POST["first_name"]
-    user.last_name = request.POST["last_name"]
-    user.save()
-    return redirect('meu_perfil')
+    user = request.user
+    if request.method == "POST":
+        user.username = request.POST["username"]
+        user.email = request.POST["email"]
+        user.first_name = request.POST["first_name"]
+        user.last_name = request.POST["last_name"]
+        user.save()
+        messages.success(request, "Perfil atualizado com sucesso!")
+        return redirect('meu_perfil')
+    return render(request, 'mcte/meu_perfil.html', {'user': user})
 
-                
+
+# Visualizar carreiras
 @login_required
-def carreira(request, id = 0):
-    print(id)
+def carreira(request, id=0):
+    if id != 0:
+        carreira = get_object_or_404(Carreira, pk=id)
+        context = {'carreira': carreira}
+        return render(request, 'carreira/carreira.html', context)
     carreiras = Carreira.objects.filter(usuario=request.user)
-    context = {
-        'carreiras': carreiras
-    }
-    return render(request, 'carreira/carreira.html', context)
+    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras})
 
 
+# Criar nova carreira
+@login_required
 def criar_carreira(request):
-    """
-    Nome
-    Time
-    Treinador
-    Usuario
-    """
-    if request.method == "GET":
-        times = Time.objects.filter(usuario=request.user)
-        treinadores = Treinador.objects.filter(usuario=request.user)
-        context = {
-            'times': times,
-            'treinadores': treinadores
-        }
-        return render(request, 'carreira/criar_carreira.html', context)
-    nome = request.POST["nome"]
-    time = Time.objects.get(pk=int(request.POST["time"]))
-    treinador = Treinador.objects.get(pk=int(request.POST["treinador"]))
-    nova_carreira = Carreira(nome=nome, time=time, treinador=treinador, usuario=request.user)
-    nova_carreira.save()
-    return redirect('carreira')
-    
-    
+    if request.method == "POST":
+        nome = request.POST["nome"]
+        time = get_object_or_404(Time, pk=int(request.POST["time"]))
+        treinador = get_object_or_404(Treinador, pk=int(request.POST["treinador"]))
+        Carreira.objects.create(nome=nome, time=time, treinador=treinador, usuario=request.user)
+        messages.success(request, "Carreira criada com sucesso!")
+        return redirect('carreira')
+    times = Time.objects.filter(usuario=request.user)
+    treinadores = Treinador.objects.filter(usuario=request.user)
+    return render(request, 'carreira/criar_carreira.html', {'times': times, 'treinadores': treinadores})
 
+
+# Criar time
+@login_required
 def criar_time(request):
-    #NOME
-    #USUARIO
-    if request.method == "GET":
-        return render(request, 'carreira/criar_time.html')
-    nome = request.POST["nome"]
-    time = Time(nome=nome, usuario=request.user)
-    time.save()
-    return redirect('criar_carreira')
+    if request.method == "POST":
+        nome = request.POST["nome"]
+        Time.objects.create(nome=nome, usuario=request.user)
+        messages.success(request, "Time criado com sucesso!")
+        return redirect('criar_carreira')
+    return render(request, 'carreira/criar_time.html')
 
+
+# Criar treinador
+@login_required
 def criar_treinador(request):
-    #NOME
-    #USUARIO
-    if request.method == "GET":
-        return render(request, 'carreira/criar_treinador.html')
-    nome = request.POST["nome"]
-    treinador = Treinador(nome=nome, usuario=request.user)
-    treinador.save()
-    return redirect('criar_carreira')
-    
-    
+    if request.method == "POST":
+        nome = request.POST["nome"]
+        Treinador.objects.create(nome=nome, usuario=request.user)
+        messages.success(request, "Treinador criado com sucesso!")
+        return redirect('criar_carreira')
+    return render(request, 'carreira/criar_treinador.html')
 
+
+# Logout
 def logout_view(request):
     logout(request)
     return redirect('index')
