@@ -47,7 +47,14 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <a class="navbar-brand" href="{% url 'index' %}">
-                    <i class="bi bi-football fs-4"></i>
+                    {% if carreira.time_atual.logo %}
+                    {% if 'https' in carreira.time_atual.logo.url %}
+                    <img src="{{ carreira.time_atual.logo.name }}" alt="Logo do Time" class="rounded me-2" style="height: 40px;">
+                    {% else %}
+                    <img src="{{ carreira.time_atual.logo.url }}" alt="Logo do Time" class="rounded me-2" style="height: 40px;">
+                    {% endif %}
+
+                    {% endif %}
                     <span class="fs-4 ms-2">MCTE</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

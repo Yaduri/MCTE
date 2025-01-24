@@ -44,10 +44,10 @@ Criar Carreira
                                 name="time" 
                                 required>
                                 <option disabled selected value="">Escolha um time</option>
-                                {% for time in times2 %}
+                                {% for time in times %}
                                 <option value="{{ time.id }}">{{ time.nome }}</option>
                                 {% endfor %}
-                                {% for time in times %}
+                                {% for time in times2 %}
                                 <option value="{{ time.id }}">{{ time.nome }}</option>
                                 {% endfor %}
                             </select>
@@ -69,6 +69,9 @@ Criar Carreira
                                 required>
                                 <option disabled selected value="">Escolha um treinador</option>
                                 {% for treinador in treinadores %}
+                                <option value="{{ treinador.id }}">{{ treinador.nome }}</option>
+                                {% endfor %}
+                                {% for treinador in treinadores2 %}
                                 <option value="{{ treinador.id }}">{{ treinador.nome }}</option>
                                 {% endfor %}
                             </select>

@@ -1,4 +1,4 @@
-#from . import fifa
+from . import fifa
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,8 +8,8 @@ from django.template import loader
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, get_object_or_404
 
-from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time
-from .forms import *
+from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time, CarreiraTimeJogador
+#from .forms import *
 
 def render(request, nome_template: str, contexto={}):
     template = loader.get_template(nome_template)
@@ -18,7 +18,24 @@ def render(request, nome_template: str, contexto={}):
 
 # Página inicial
 def index(request):
+
+    def teste():
+        # Criar objetos
+        carreira1 = Carreira.objects.get(pk=1)
+
+        time1 = Time.objects.get(pk=1)
+        time2 = Time.objects.get(pk=2)
+
+        jogador1 = Jogador.objects.create(nome="Jogador 1")
+        jogador2 = Jogador.objects.create(nome="Jogador 2")
+
+        # Vincular Carreira, Time e Jogador
+        CarreiraTimeJogador.objects.create(carreira=carreira1, time=time1, jogador=jogador1)
+        CarreiraTimeJogador.objects.create(carreira=carreira1, time=time1, jogador=jogador2)
+    #teste()
     return render(request, 'mcte/index.html')
+
+
 
 
 # Login
@@ -70,36 +87,50 @@ def meu_perfil(request):
 # Visualizar carreiras
 @login_required
 def selecionar_carreira(request):
-    carreiras = Carreira.objects.filter(usuario=request.user)
-    for carreira in carreiras:
-        print(carreira.time.logo.url)
-        print(carreira.time.logo.name)
-    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras})
+    carreiras_usuario = Carreira.objects.filter(usuario=request.user)
+    carreiras = []
+    #for carreira in carreiras_usuario:
+        #ctj = CarreiraTimeJogador.objects.filter(carreira=carreira)
+        #print(ctj.carreira)
+        #print(ctj.time)
+        #print(ctj.jogador)
+    for carreira in carreiras_usuario:
+        print(carreira.time_atual.logo.url)
+        print(carreira.time_atual.logo.name)
+    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras_usuario})
 
 @login_required
-def minha_carreira(request, id=0):
-    if id != 0:
-        carreira = get_object_or_404(Carreira, pk=id)
-        context = {'carreira': carreira}
-        return render(request, 'carreira/carreira.html', context)
+def adicionar_temporada(request, id):
+    carreira = get_object_or_404(Carreira, id=id, usuario=request.user)
+    if request.method == 'POST':
+        nome_temporada = request.POST.get('novaTemporada')
+        if nome_temporada:
+            Temporada.objects.create(carreira=carreira, data=nome_temporada)
+            messages.success(request, 'Temporada adicionada com sucesso!')
+        else:
+            messages.error(request, 'O nome da temporada é obrigatório.')
+    return redirect('minha_carreira', id=carreira.id)
+
 
 # Criar nova carreira
 @login_required
 def criar_carreira(request):
     if request.method == "POST":
-        form = CarreiraForm(request.POST)
-        if form.is_valid():
-            nova_carreira = form.save(commit=False)
-            nova_carreira.usuario = request.user
-            nova_carreira.save()
+        nome:str = request.POST['nome']
+        time:int = int(request.POST['time'])
+        treinador:int = int(request.POST['treinador'])
+        try:
+            carreira = Carreira(nome=nome, time_atual_id=time, treinador_id=treinador, usuario=request.user)
+            carreira.save()
             messages.success(request, "Carreira criada com sucesso!")
             return redirect('selecionar_carreira')
-        else:
+        except:
             messages.error(request, "Ocorreu um erro ao criar a carreira. Verifique os dados e tente novamente.")
-    times = Time.objects.filter(criado=False)
-    times2 = Time.objects.filter(usuario=request.user)
+    times = Time.objects.filter(usuario=request.user)
+    times2 = Time.objects.filter(criado=False)
     treinadores = Treinador.objects.filter(usuario=request.user)
-    return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores})
+    treinadores2 = Treinador.objects.filter(criado=False)
+    return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores, 'treinadores2': treinadores2})
 
 
 # Criar time
@@ -143,6 +174,13 @@ def criar_treinador(request):
         #return redirect('criar_carreira')
     return render(request, 'carreira/criar_treinador.html')
 
+@login_required
+def minha_carreira(request, id=0):
+    if id != 0:
+        carreira = get_object_or_404(Carreira, pk=id, usuario=request.user)
+        temporadas = Temporada.objects.filter(carreira=carreira)
+        context = {'carreira': carreira, 'temporadas': temporadas}
+        return render(request, 'carreira/carreira.html', context)
 
 # Logout
 def logout_view(request):

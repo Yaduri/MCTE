@@ -5,12 +5,84 @@ from datetime import date
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 def validar_tamanho_imagem(imagem):
-    tamanho_maximo_mb = 500
+    #tamanho_maximo_mb = 500
     #if imagem.size > tamanho_maximo_mb * 1024 * 1024:
     #    raise ValidationError(f"A imagem não pode ter mais de {tamanho_maximo_mb} MB.")
+    ...
 
 
 # Crie seus modelos aqui
+class Time(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    logo = models.ImageField(upload_to='times/', blank=True, null=True, validators=[validar_tamanho_imagem])
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
+    criado = models.BooleanField('Time foi criado manualmente?', default=False)
+    time_atual = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ["nome"]
+    
+    def __str__(self):
+        return self.nome
+
+class Jogador(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    posicao = models.CharField(max_length=3)
+    criado = models.BooleanField('Jogador foi criado manualmente?', default=False)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
+    clube_atual = models.BooleanField(default=True)
+    
+    #data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
+    #carreira = models.ManyToManyField(Carreira, related_name="jogadores")
+    #foto = models.ImageField(upload_to='jogadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
+    
+    
+    class Meta:
+        ordering = ["nome"]
+        
+    def __str__(self):
+        return self.nome
+
+class Treinador(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    foto = models.ImageField(upload_to='treinadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
+    #time = models.ManyToManyField(Time, related_name="treinadores")
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
+    criado = models.BooleanField('Treinador foi criado manualmente?', default=False)
+    
+    class Meta:
+        ordering = ["nome"]
+    
+    def __str__(self):
+        return self.nome
+
+
+
+class Carreira(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+    time_atual = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreiras")
+    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE, related_name="carreiras")
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carreiras")
+    
+    class Meta:
+        unique_together = ('nome', 'usuario')
+    
+    def __str__(self):
+        return self.nome
+
+class CarreiraTimeJogador(models.Model):
+    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
+    time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
+    jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
+
+    class Meta:
+        unique_together = ("carreira", "time", "jogador")
+        verbose_name = "Carreira-Time-Jogador"
+        verbose_name_plural = "Carreira-Times-Jogadores"
+
+    def __str__(self):
+        return f"{self.carreira.nome} - {self.time.nome} - {self.jogador.nome}"
+
 
 class Campeonato(models.Model):
     nome = models.CharField(max_length=50)
@@ -23,58 +95,14 @@ class Campeonato(models.Model):
     def __str__(self):
         return self.nome
     
-class Time(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
-    logo = models.ImageField(upload_to='times/', blank=True, null=True, validators=[validar_tamanho_imagem])
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    criado = models.BooleanField('Time foi criado manualmente?', default=False)
-    class Meta:
-        ordering = ["nome"]
-    
-    def __str__(self):
-        return self.nome
-
-class Treinador(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
-    foto = models.ImageField(upload_to='treinadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    criado = models.BooleanField('Treinador foi criado manualmente?', default=False)
-    
-    class Meta:
-        ordering = ["nome"]
-    
-    def __str__(self):
-        return self.nome
-
-class Carreira(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
-    time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreiras")
-    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE, related_name="carreiras")
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carreiras")
-    
-    class Meta:
-        unique_together = ('nome', 'usuario')
-    
-    def __str__(self):
-        return self.nome
 
 
-class Jogador(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
-    data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
-    carreira = models.ManyToManyField(Carreira, related_name="jogadores")
-    foto = models.ImageField(upload_to='jogadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
-    clube_atual = models.BooleanField(default=True)
-    criado = models.BooleanField('Jogador foi criado manualmente?', default=False)
-    class Meta:
-        ordering = ["nome"]
-        
-    def __str__(self):
-        return self.nome
+
+
     
 class Temporada(models.Model):
     data = models.CharField(max_length=50, default=f"{date.today().year}/{date.today().year + 1}")
-    
+    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="temporadas")
     class Meta:
         ordering = ["data"]
     

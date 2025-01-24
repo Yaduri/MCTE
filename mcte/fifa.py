@@ -51,6 +51,7 @@ def apagatudo():
     Carreira.objects.all().delete()
     Time.objects.all().delete()
     Treinador.objects.all().delete()
+    Jogador.objects.all().delete()
     
     #TIMES
     
@@ -67,12 +68,5 @@ def apagatudo():
     for time in times:
         carregar_times(time)    
     
-    #TREINADORES
-    
+        
 #apagatudo()
-
-
-
-#Time(nome=nome, logo=logo)
-
-

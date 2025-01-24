@@ -23,20 +23,14 @@ Minhas Carreiras
             <!-- Envolvendo o card com o link para a página "minha_carreira" passando o id da carreira -->
             <a href="{% url 'minha_carreira' carreira.id %}" class="text-decoration-none">
                 <div class="card h-100 carreira-card">
-                    <div class="position-relative">
-                        {% if carreira.time.logo %}
-                            {% if 'https' in carreira.time.logo.url %}
-                            <img src="{{ carreira.time.logo.name }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
+                    <div>
+                        {% if carreira.time_atual.logo %}
+                            {% if 'https' in carreira.time_atual.logo.url %}
+                            <img src="{{ carreira.time_atual.logo.name }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
                             {% else %}
-                            <img src="{{ carreira.time.logo.url }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
+                            <img src="{{ carreira.time_atual.logo.url }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
                             {% endif %}
                         
-                        {% endif %}
-
-                        {% if carreira.treinador.foto %}
-                        <img src="{{ carreira.treinador.foto.url }}" alt="Foto do Treinador" class="img-fluid rounded-circle position-absolute" style="top: 10px; left: 10px; width: 75px; height: 75px; object-fit: cover; border: 2px solid white;">
-                        {% else %}
-                        <div class="position-absolute" style="top: 10px; left: 10px; width: 75px; height: 75px; background-color: #ddd; border-radius: 50%;"></div>
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -44,7 +38,7 @@ Minhas Carreiras
                             {{ carreira.nome }}
                         </h5>
                         <p class="card-text"><strong>Time:</strong>
-                            {{ carreira.time }}
+                            {{ carreira.time_atual }}
                         </p>
                         <p class="card-text"><strong>Treinador:</strong>
                             {{ carreira.treinador }}

@@ -1,11 +1,65 @@
 {% extends "layout.html" %}
 
 {% block title %}
-{{carreira.nome}}
+
+{{ carreira.nome }}
 {% endblock %}
 
 {% block content %}
-<div>
-    <h1>{{carreira.nome}}</h1>
+<div class="container my-5 text-center">
+    <h1 class="mb-4">
+        {{ carreira.nome }}
+    </h1>
+
+    <!-- Linha para Temporadas -->
+    <div class="d-flex justify-content-center align-items-center">
+        <!-- Label "Temporadas:" -->
+        <div class="me-2">
+            <label for="temporada" class="form-label"><strong>Temporadas:</strong></label>
+        </div>
+
+        <!-- Select com as temporadas -->
+        <div class="me-2">
+            <select id="temporada" class="form-select selectpicker" data-live-search="true" name="temporada">
+                <option disabled selected value="">Escolha uma temporada</option>
+                {% for temporada in temporadas %}
+                <option value="{{ temporada.data }}">
+                    {{ temporada.data }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Botão para adicionar nova temporada -->
+        <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTemporadaModal">
+                <i class="bi bi-plus-lg"></i> Adicionar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar nova temporada -->
+<div class="modal fade" id="addTemporadaModal" tabindex="-1" aria-labelledby="addTemporadaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTemporadaModalLabel">Adicionar Temporada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'adicionar_temporada' carreira.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="novaTemporada" class="form-label">Ano</label>
+                        <input type="text" class="form-control" id="novaTemporada" name="novaTemporada" placeholder="Ex: 23/24, 24/25" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

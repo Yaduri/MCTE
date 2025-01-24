@@ -14,7 +14,7 @@ class TreinadorForm(forms.ModelForm):
 class JogadorForm(forms.ModelForm):
     class Meta:
         model = Jogador
-        fields = ['nome', 'data_nascimento', 'carreira', 'foto', 'clube_atual']
+        fields = ['nome', 'posicao']
 
 class TimeForm(forms.ModelForm):
     class Meta:
