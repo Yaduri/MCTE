@@ -44,6 +44,9 @@ Criar Carreira
                                 name="time" 
                                 required>
                                 <option disabled selected value="">Escolha um time</option>
+                                {% for time in times2 %}
+                                <option value="{{ time.id }}">{{ time.nome }}</option>
+                                {% endfor %}
                                 {% for time in times %}
                                 <option value="{{ time.id }}">{{ time.nome }}</option>
                                 {% endfor %}

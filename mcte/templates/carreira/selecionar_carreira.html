@@ -25,7 +25,12 @@ Minhas Carreiras
                 <div class="card h-100 carreira-card">
                     <div class="position-relative">
                         {% if carreira.time.logo %}
-                        <img src="{{ carreira.time.logo.url }}" class="card-img-top" alt="Logo do Time">
+                            {% if 'https' in carreira.time.logo.url %}
+                            <img src="{{ carreira.time.logo.name }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
+                            {% else %}
+                            <img src="{{ carreira.time.logo.url }}" class="card-img-top" alt="Logo do Time" style="width: 200px; height: 200px">
+                            {% endif %}
+                        
                         {% endif %}
 
                         {% if carreira.treinador.foto %}

@@ -1,3 +1,5 @@
+from . import fifa
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -69,6 +71,9 @@ def meu_perfil(request):
 @login_required
 def selecionar_carreira(request):
     carreiras = Carreira.objects.filter(usuario=request.user)
+    for carreira in carreiras:
+        print(carreira.time.logo.url)
+        print(carreira.time.logo.name)
     return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras})
 
 @login_required
@@ -91,16 +96,18 @@ def criar_carreira(request):
             return redirect('selecionar_carreira')
         else:
             messages.error(request, "Ocorreu um erro ao criar a carreira. Verifique os dados e tente novamente.")
-    times = Time.objects.filter(usuario=request.user)
+    times = Time.objects.filter(criado=False)
+    times2 = Time.objects.filter(usuario=request.user)
     treinadores = Treinador.objects.filter(usuario=request.user)
-    return render(request, 'carreira/criar_carreira.html', {'times': times, 'treinadores': treinadores})
+    return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores})
 
 
 # Criar time
 @login_required
 def criar_time(request):
     if request.method == "POST":
-        request.FILES['logo'].name = request.user.username + ' - ' + request.FILES['logo'].name
+        if request.FILES:
+            request.FILES['logo'].name = request.user.username + ' - ' + request.FILES['logo'].name
         form = TimeForm(request.POST, request.FILES)
         if form.is_valid():
             time = form.save(commit=False)
@@ -119,7 +126,8 @@ def criar_time(request):
 @login_required
 def criar_treinador(request):
     if request.method == "POST":
-        request.FILES['foto'].name = request.user.username + ' - ' + request.FILES['foto'].name
+        if request.FILES:
+            request.FILES['foto'].name = request.user.username + ' - ' + request.FILES['foto'].name
         form = TreinadorForm(request.POST, request.FILES)
         if form.is_valid():
             treinador = form.save(commit=False)
