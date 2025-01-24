@@ -8,7 +8,6 @@ Criar Carreira
 <div class="container my-5">
     <h1 class="mb-4 text-center">Criar Carreira</h1>
 
-
     <!-- Formulário para criar uma nova carreira -->
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
@@ -33,9 +32,9 @@ Criar Carreira
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="time" class="form-label mb-0">Selecione o Time</label>
-                                <a href="{% url 'criar_time' %}" class="btn btn-sm btn-outline-primary">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTimeModal">
                                     <i class="bi bi-plus-circle"></i> Adicionar Time
-                                </a>
+                                </button>
                             </div>
                             <select 
                                 class="form-select selectpicker" 
@@ -57,9 +56,9 @@ Criar Carreira
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="treinador" class="form-label mb-0">Selecione o Treinador</label>
-                                <a href="{% url 'criar_treinador' %}" class="btn btn-sm btn-outline-primary">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTreinadorModal">
                                     <i class="bi bi-plus-circle"></i> Adicionar Treinador
-                                </a>
+                                </button>
                             </div>
                             <select 
                                 class="form-select selectpicker" 
@@ -85,6 +84,62 @@ Criar Carreira
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar Time -->
+<div class="modal fade" id="addTimeModal" tabindex="-1" aria-labelledby="addTimeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTimeModalLabel">Adicionar Time</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="time-nome" class="form-label">Nome do Time</label>
+                        <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Digite o nome do time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time-logo" class="form-label">Logo do Time (opcional)</label>
+                        <input type="file" class="form-control" id="time-logo" name="logo" accept="image/*">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar Treinador -->
+<div class="modal fade" id="addTreinadorModal" tabindex="-1" aria-labelledby="addTreinadorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTreinadorModalLabel">Adicionar Treinador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'criar_treinador' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="treinador-nome" class="form-label">Nome do Treinador</label>
+                        <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Digite o nome do treinador" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="treinador-foto" class="form-label">Foto do Treinador (opcional)</label>
+                        <input type="file" class="form-control" id="treinador-foto" name="foto" accept="image/*">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

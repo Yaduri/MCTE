@@ -17,7 +17,6 @@ class Time(models.Model):
     logo = models.ImageField(upload_to='times/', blank=True, null=True, validators=[validar_tamanho_imagem])
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
     criado = models.BooleanField('Time foi criado manualmente?', default=False)
-    time_atual = models.BooleanField(default=True)
     
     class Meta:
         ordering = ["nome"]
@@ -74,6 +73,7 @@ class CarreiraTimeJogador(models.Model):
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
     time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
     jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
+    time_atual = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ("carreira", "time", "jogador")

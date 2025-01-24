@@ -139,18 +139,16 @@ def criar_time(request):
     if request.method == "POST":
         if request.FILES:
             request.FILES['logo'].name = request.user.username + ' - ' + request.FILES['logo'].name
-        form = TimeForm(request.POST, request.FILES)
-        if form.is_valid():
-            time = form.save(commit=False)
-            time.usuario = request.user
+        nome = request.POST['']
+        logo = request.FILES
+        try:
+            time = Time(nome=nome, logo=logo, usuario=request.user, criado=True)
             time.save()
             messages.success(request, "Time criado com sucesso!")
             return redirect('criar_carreira')
-        else:
+        except:
             messages.error(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
-    else:
-        form = TimeForm()
-        return render(request, 'carreira/criar_time.html', {'form': form})
+
 
 
 # Criar treinador
