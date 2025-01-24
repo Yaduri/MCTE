@@ -63,8 +63,8 @@ def apagatudo():
     #('SA') #ITALIA
     #('SSL') #Holanda
     
-    #times = ['PL', 'PD', 'BL1', 'FL1', 'PPL', 'SA', 'SSL']
-    times = ['PL']
+    times = ['PL', 'PD', 'BL1', 'FL1', 'PPL', 'SA', 'SSL']
+    #times = ['PL']
     for time in times:
         carregar_times(time)    
     
