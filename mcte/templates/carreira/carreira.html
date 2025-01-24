@@ -1,8 +1,11 @@
 {% extends "layout.html" %}
 
 {% block title %}
-
 {{ carreira.nome }}
+{% endblock %}
+
+{% block time %}
+{{carreira.time_atual}} | {{carreira.treinador}}
 {% endblock %}
 
 {% block content %}
