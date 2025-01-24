@@ -60,7 +60,7 @@
                         </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'carreira' %}">Carreiras</a>
+                            <a class="nav-link" href="{% url 'selecionar_carreira' %}">Carreiras</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'meu_perfil' %}">Meu Perfil</a>
@@ -84,6 +84,18 @@
 
     <main>
         <div class="container mt-5 pt-5">
+            <!-- Exibir mensagens de sucesso ou erro -->
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:"info" }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% endif %}
             {% block content %}
             {% endblock %}
         </div>

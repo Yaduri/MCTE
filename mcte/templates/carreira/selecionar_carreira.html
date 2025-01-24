@@ -15,28 +15,35 @@ Minhas Carreiras
         </a>
     </div>
 
-    <!-- Exibir mensagens de sucesso ou erro -->
-    {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
     <!-- Lista de carreiras existentes -->
     <div class="row justify-content-center">
         {% for carreira in carreiras %}
         <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <!-- Envolvendo o card com o link para a página "teste" passando o id da carreira -->
-            <a href="{% url 'carreira' carreira.id %}" class="text-decoration-none">
+            <!-- Envolvendo o card com o link para a página "minha_carreira" passando o id da carreira -->
+            <a href="{% url 'minha_carreira' carreira.id %}" class="text-decoration-none">
                 <div class="card h-100 carreira-card">
+                    <div class="position-relative">
+                        {% if carreira.time.logo %}
+                        <img src="{{ carreira.time.logo.url }}" class="card-img-top" alt="Logo do Time">
+                        {% endif %}
+
+                        {% if carreira.treinador.foto %}
+                        <img src="{{ carreira.treinador.foto.url }}" alt="Foto do Treinador" class="img-fluid rounded-circle position-absolute" style="top: 10px; left: 10px; width: 75px; height: 75px; object-fit: cover; border: 2px solid white;">
+                        {% else %}
+                        <div class="position-absolute" style="top: 10px; left: 10px; width: 75px; height: 75px; background-color: #ddd; border-radius: 50%;"></div>
+                        {% endif %}
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">{{ carreira.nome }}</h5>
-                        <p class="card-text"><strong>Time:</strong> {{ carreira.time }}</p>
-                        <p class="card-text"><strong>Treinador:</strong> {{ carreira.treinador }}</p>
+                        <h5 class="card-title">
+                            {{ carreira.nome }}
+                        </h5>
+                        <p class="card-text"><strong>Time:</strong>
+                            {{ carreira.time }}
+                        </p>
+                        <p class="card-text"><strong>Treinador:</strong>
+                            {{ carreira.treinador }}
+                        </p>
 
                         <!-- Campo Hidden com o ID da Carreira (não será necessário, pois o ID já está na URL) -->
                         <input type="hidden" name="carreira_id" value="{{ carreira.id }}">

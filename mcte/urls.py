@@ -7,8 +7,8 @@ urlpatterns = [
     path("auth/login/", views.login_view, name="login"),
     path("auth/signup/", views.signup, name="signup"),
     path('auth/', include('django.contrib.auth.urls')),
-    path('carreira/selecionar', views.carreira, name='carreira'),
-    path('carreira/<int:id>', views.carreira, name='carreira'),
+    path('carreira/selecionar', views.selecionar_carreira, name='selecionar_carreira'),
+    path('carreira/<int:id>', views.minha_carreira, name='minha_carreira'),
     
     path('criar/carreira', views.criar_carreira, name='criar_carreira'),
     path('criar/time', views.criar_time, name='criar_time'),

@@ -17,13 +17,11 @@ Criar Time
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="nome" class="form-label">Nome do Treinador</label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="nome" 
-                                name="nome" 
-                                placeholder="Digite o nome do treinador" 
-                                required>
+                            <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do treinador" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="foto" class="form-label">Foto do Treinador (opcional)</label>
+                            <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">

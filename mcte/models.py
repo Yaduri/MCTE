@@ -1,11 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from datetime import date
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+def validar_tamanho_imagem(imagem):
+    tamanho_maximo_mb = 5
+    if imagem.size > tamanho_maximo_mb * 1024 * 1024:
+        raise ValidationError(f"A imagem não pode ter mais de {tamanho_maximo_mb} MB.")
+
 
 # Crie seus modelos aqui
 
 class Campeonato(models.Model):
     nome = models.CharField(max_length=50)
-    #logo = Adicionar no futuro
+    logo = models.ImageField(upload_to='campeonatos/', blank=True, null=True, validators=[validar_tamanho_imagem])
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta:
@@ -15,8 +24,8 @@ class Campeonato(models.Model):
         return self.nome
     
 class Time(models.Model):
-    nome = models.CharField(max_length=50)
-    logo = models.ImageField(upload_to='times/', blank=True, null=True)
+    nome = models.CharField(max_length=50, unique=True)
+    logo = models.ImageField(upload_to='times/', blank=True, null=True, validators=[validar_tamanho_imagem])
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta:
@@ -26,8 +35,8 @@ class Time(models.Model):
         return self.nome
 
 class Treinador(models.Model):
-    nome = models.CharField(max_length=50)
-    foto = models.ImageField(upload_to='treinadores/', blank=True, null=True)
+    nome = models.CharField(max_length=50, unique=True)
+    foto = models.ImageField(upload_to='treinadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta:
@@ -37,7 +46,7 @@ class Treinador(models.Model):
         return self.nome
 
 class Carreira(models.Model):
-    nome = models.CharField(max_length=50)
+    nome = models.CharField(max_length=50, unique=True)
     time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreiras")
     treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE, related_name="carreiras")
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carreiras")
@@ -50,10 +59,10 @@ class Carreira(models.Model):
 
 
 class Jogador(models.Model):
-    nome = models.CharField(max_length=50)
+    nome = models.CharField(max_length=50, unique=True)
     data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
-    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE)
-    foto = models.ImageField(upload_to='jogadores/', blank=True, null=True)
+    carreira = models.ManyToManyField(Carreira, related_name="jogadores")
+    foto = models.ImageField(upload_to='jogadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
     clube_atual = models.BooleanField(default=True)
     class Meta:
         ordering = ["nome"]
@@ -62,7 +71,7 @@ class Jogador(models.Model):
         return self.nome
     
 class Temporada(models.Model):
-    data = models.CharField(max_length=50, default="24/25")
+    data = models.CharField(max_length=50, default=f"{date.today().year}/{date.today().year + 1}")
     
     class Meta:
         ordering = ["data"]
@@ -70,10 +79,12 @@ class Temporada(models.Model):
     def __str__(self):
         return self.data
 
+
+
 class Estatistica(models.Model):
-    jogos = models.IntegerField('Quantidade de Jogos')
-    gol = models.IntegerField('Quantidade de Gols')
-    assistencia = models.IntegerField('Quantidade de Assistências')
+    jogos = models.IntegerField('Quantidade de Jogos', validators=[MinValueValidator(0)], default=0)
+    gol = models.IntegerField('Quantidade de Gols', validators=[MinValueValidator(0)], default=0)
+    assistencia = models.IntegerField('Quantidade de Assistências', validators=[MinValueValidator(0)], default=0)
     jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="estatisticas")
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name="estatisticas")
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="estatisticas")
@@ -81,31 +92,11 @@ class Estatistica(models.Model):
     
     def total_participacoes(self):
         return self.gol + self.assistencia
+    
+    def eficiencia(self):
+        if self.jogos > 0:
+            return (self.total_participacoes() / self.jogos) * 100
+        return 0
 
     def __str__(self):
         return f"{self.jogador} - {self.campeonato} ({self.temporada})"
-
-    
-def criar_dados_padrao():
-    cria_temporada(data="24/25")
-    cria_temporada(data="25/26")
-    cria_temporada(data="26/27")
-    cria_temporada(data="27/28")
-    cria_temporada(data="28/29")
-    cria_temporada(data="29/30")
-    cria_temporada(data="30/31")
-    cria_temporada(data="31/32")
-    cria_temporada(data="32/33")
-    cria_temporada(data="33/34")
-    #cria_time(nome="Liverpool")
-
-def cria_temporada(data:str):
-    if not Temporada.objects.filter(data=data):
-        Temporada(data=data).save()
-
-def cria_time(nome:str):
-    if not Time.objects.filter(nome=nome):
-        Time(nome=nome).save()
-    
-
-#criar_dados_padrao()

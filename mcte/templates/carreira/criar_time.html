@@ -13,17 +13,15 @@ Criar Time
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form method="POST" action="{% url 'criar_time' %}">
+                    <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="nome" class="form-label">Nome do Time</label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="nome" 
-                                name="nome" 
-                                placeholder="Digite o nome do time" 
-                                required>
+                            <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">Logo do Time (opcional)</label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">

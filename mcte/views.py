@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, get_object_or_404
 
 from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time
-
+from .forms import *
 
 def render(request, nome_template: str, contexto={}):
     template = loader.get_template(nome_template)
@@ -67,25 +67,30 @@ def meu_perfil(request):
 
 # Visualizar carreiras
 @login_required
-def carreira(request, id=0):
+def selecionar_carreira(request):
+    carreiras = Carreira.objects.filter(usuario=request.user)
+    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras})
+
+@login_required
+def minha_carreira(request, id=0):
     if id != 0:
         carreira = get_object_or_404(Carreira, pk=id)
         context = {'carreira': carreira}
         return render(request, 'carreira/carreira.html', context)
-    carreiras = Carreira.objects.filter(usuario=request.user)
-    return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras})
-
 
 # Criar nova carreira
 @login_required
 def criar_carreira(request):
     if request.method == "POST":
-        nome = request.POST["nome"]
-        time = get_object_or_404(Time, pk=int(request.POST["time"]))
-        treinador = get_object_or_404(Treinador, pk=int(request.POST["treinador"]))
-        Carreira.objects.create(nome=nome, time=time, treinador=treinador, usuario=request.user)
-        messages.success(request, "Carreira criada com sucesso!")
-        return redirect('carreira')
+        form = CarreiraForm(request.POST)
+        if form.is_valid():
+            nova_carreira = form.save(commit=False)
+            nova_carreira.usuario = request.user
+            nova_carreira.save()
+            messages.success(request, "Carreira criada com sucesso!")
+            return redirect('selecionar_carreira')
+        else:
+            messages.error(request, "Ocorreu um erro ao criar a carreira. Verifique os dados e tente novamente.")
     times = Time.objects.filter(usuario=request.user)
     treinadores = Treinador.objects.filter(usuario=request.user)
     return render(request, 'carreira/criar_carreira.html', {'times': times, 'treinadores': treinadores})
@@ -95,21 +100,39 @@ def criar_carreira(request):
 @login_required
 def criar_time(request):
     if request.method == "POST":
-        nome = request.POST["nome"]
-        Time.objects.create(nome=nome, usuario=request.user)
-        messages.success(request, "Time criado com sucesso!")
-        return redirect('criar_carreira')
-    return render(request, 'carreira/criar_time.html')
+        request.FILES['logo'].name = request.user.username + ' - ' + request.FILES['logo'].name
+        form = TimeForm(request.POST, request.FILES)
+        if form.is_valid():
+            time = form.save(commit=False)
+            time.usuario = request.user
+            time.save()
+            messages.success(request, "Time criado com sucesso!")
+            return redirect('criar_carreira')
+        else:
+            messages.error(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
+    else:
+        form = TimeForm()
+        return render(request, 'carreira/criar_time.html', {'form': form})
 
 
 # Criar treinador
 @login_required
 def criar_treinador(request):
     if request.method == "POST":
-        nome = request.POST["nome"]
-        Treinador.objects.create(nome=nome, usuario=request.user)
-        messages.success(request, "Treinador criado com sucesso!")
-        return redirect('criar_carreira')
+        request.FILES['foto'].name = request.user.username + ' - ' + request.FILES['foto'].name
+        form = TreinadorForm(request.POST, request.FILES)
+        if form.is_valid():
+            treinador = form.save(commit=False)
+            treinador.usuario = request.user
+            treinador.save()
+            messages.success(request, "Treinador criado com sucesso!")
+            return redirect('criar_carreira')
+        else:
+            messages.error(request, "Ocorreu um erro ao criar o treinador. Verifique os dados e tente novamente.")
+        #nome = request.POST["nome"]
+        #Treinador.objects.create(nome=nome, usuario=request.user)
+        #messages.success(request, "Treinador criado com sucesso!")
+        #return redirect('criar_carreira')
     return render(request, 'carreira/criar_treinador.html')
 
 
