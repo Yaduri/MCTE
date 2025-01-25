@@ -3,7 +3,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, get_object_or_404
@@ -169,10 +169,35 @@ def minha_carreira(request, id=0):
         return render(request, 'carreira/carreira.html', context)
 
 @login_required
-def jogadores(request, car_id):
+def jogadores(request, car_id:int):
     carreira = get_object_or_404(Carreira, pk=car_id, usuario=request.user)
     ativo = 'jogadores'
-    return render(request, 'carreira/jogadores.html', {'carreira': carreira, 'ativo': ativo})
+    time = get_object_or_404(Time, pk=carreira.time_atual.id)
+    jogadores = Jogador.objects.filter(time=time.nome)
+    return render(request, 'carreira/jogadores.html', {'carreira': carreira, 'ativo': ativo, 'jogadores': jogadores})
+
+def demitir_jogador(request, jogador_id:int):
+    ...
+
+def contratar_jogador_existente(request):
+    print(request.GET)
+    ...
+
+def contratar_jogador_novo(request):
+    ...
+
+def pesquisar_jogadores(request):
+    query = request.GET.get('nome_jogador', '')
+    if query:
+        jogadores = Jogador.objects.filter(nome__icontains=query)
+        resultados = [{'id': jogador.id, 'nome': jogador.nome} for jogador in jogadores]
+    else:
+        resultados = []
+    return JsonResponse(resultados, safe=False)
+
+
+def detalhes_jogador(request, jogador_id:int):
+    ...
 
 # Logout
 def logout_view(request):

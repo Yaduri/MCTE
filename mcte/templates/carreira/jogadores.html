@@ -1,10 +1,168 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 
 {% block title %}
-
-{{ carreira.nome }}
+  {{ carreira.nome }} - Jogadores
 {% endblock %}
 
 {% block content %}
+<div class="container my-5">
+    <!-- Título principal com botão "Contratar" -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary">Jogadores</h1>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#contratarJogadorModal">
+            <i class="bi bi-person-plus"></i> Contratar
+        </button>
+    </div>
+
+    <!-- Lista de jogadores -->
+    <div class="row">
+        {% for jogador in jogadores %}
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <!-- Card do Jogador -->
+            <div 
+                class="card shadow-sm jogador-card" 
+                onclick="window.location.href='{% url 'detalhes_jogador' jogador.id %}'" 
+                style="cursor: pointer;"
+            >
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-1"><strong>{{ jogador.nome }}</strong></h5>
+                            <p class="text-muted mb-0">{{ jogador.posicao }}</p>
+                        </div>
+                        <form method="POST" action="{% url 'demitir_jogador' jogador.id %}" class="ms-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-person-dash"></i> Demitir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal para Contratar Jogador -->
+<div class="modal fade" id="contratarJogadorModal" tabindex="-1" aria-labelledby="contratarJogadorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contratarJogadorModalLabel">Contratar Jogador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs de opções -->
+                <ul class="nav nav-tabs mb-3" id="contratarTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="novo-tab" data-bs-toggle="tab" data-bs-target="#novo" type="button" role="tab" aria-controls="novo" aria-selected="true">Criar Novo</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="existente-tab" data-bs-toggle="tab" data-bs-target="#existente" type="button" role="tab" aria-controls="existente" aria-selected="false">Selecionar Existente</button>
+                    </li>
+                </ul>
+
+                <!-- Conteúdo das tabs -->
+                <div class="tab-content" id="contratarTabContent">
+                    <!-- Criar Novo Jogador -->
+                    <div class="tab-pane fade show active" id="novo" role="tabpanel" aria-labelledby="novo-tab">
+                        <form method="POST" action="{% url 'contratar_jogador_novo' %}">
+                            {% csrf_token %}
+                            <!-- Campo Nome -->
+                            <div class="mb-3">
+                                <label for="nome-jogador" class="form-label">Nome do Jogador</label>
+                                <input type="text" class="form-control" id="nome-jogador" name="nome" placeholder="Digite o nome do jogador" required>
+                            </div>
+
+                            <!-- Campo Posição -->
+                            <div class="mb-3">
+                                <label for="posicao-jogador" class="form-label">Posição</label>
+                                <select class="form-select" id="posicao-jogador" name="posicao" required>
+                                    <option disabled selected value="">Selecione uma posição</option>
+                                    <option value="GL">Goleiro</option>
+                                    <option value="LD">Lateral Direiro</option>
+                                    <option value="ZAG">Zagueiro</option>
+                                    <option value="LE">Lateral Esquerdo</option>
+                                    <option value="VOL">Volante</option>
+                                    <option value="MC">Meia-Central</option>
+                                    <option value="MD">Meia-Direita</option>
+                                    <option value="ME">Meia-Esquerda</option>
+                                    <option value="MEI">Meia Ofensivo</option>
+                                    <option value="PD">Ponta-Direita</option>
+                                    <option value="ATA">Atacante</option>
+                                    <option value="PE">Ponta-Esquerda</option>
+                                </select>
+                            </div>
+
+                            <!-- Botão de Salvar -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-lg"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Selecionar Jogador Existente -->
+                    <div class="tab-pane fade" id="existente" role="tabpanel" aria-labelledby="existente-tab">
+                        <form method="POST" action="{% url 'contratar_jogador_existente' %}">
+                            {% csrf_token %}
+                            <!-- Campo de Pesquisa -->
+                            <div class="mb-3">
+                                <label for="pesquisar-jogador" class="form-label">Pesquisar Jogador</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="pesquisar-jogador" 
+                                    name="pesquisar" 
+                                    placeholder="Digite o nome do jogador" 
+                                    oninput="pesquisarJogadores(this.value)" 
+                                    required>
+                            </div>
+
+                            <!-- Lista de Resultados -->
+                            <ul class="list-group" id="resultado-pesquisa">
+                                <!-- Os resultados serão carregados dinamicamente -->
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+    
+    function pesquisarJogadores(query) {
+        
+        if (query.length < 1) {
+            document.getElementById('resultado-pesquisa').innerHTML = '';
+            return;
+        }
+        const url = '{% url 'pesquisar_jogadores' %}'
+        fetch(url + `?nome_jogador=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const lista = document.getElementById('resultado-pesquisa');
+                lista.innerHTML = '';
+                data.forEach(jogador => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item carreira-card';
+                    item.textContent = jogador.nome;
+                    item.onclick = () => selecionarJogador(jogador.id);
+                    lista.appendChild(item);
+                });
+            });
+    }
+    
+    function selecionarJogador(id) {
+        // Aqui você pode adicionar a lógica para selecionar o jogador
+        alert(`Jogador ${id} selecionado!`);
+    }
+</script>
 
 {% endblock %}

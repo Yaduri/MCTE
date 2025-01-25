@@ -34,8 +34,29 @@ def testT(nome:str):
 
 def testP(time:str, jogador:str, posicao:str):
     teste = Jogador.objects.filter(nome=jogador)
+    posicoes = {
+        'Defensive Midfield': 'VOL',
+        'Goalkeeper': 'GL',
+        'Defence': 'ZAG',
+        'Centre-Back': 'ZAG',
+        'Right-Back': 'LD',
+        'Left-Back': 'LE',
+        'Centre-Forward': 'ATA',
+        'Central Midfield': 'MC',
+        'Left Winger': 'PE',
+        'Midfield': 'MC',
+        'Attacking Midfield': 'MEI',
+        'Right Winger': 'PD',
+        'Offence': 'SA',
+        'Right Midfield': 'MD',
+        'Left Midfield': 'ME',
+        'Midfield': 'MC',
+    }
     try:
         if not teste:
+            posicao = posicoes.get(posicao, posicao)
+            if len(posicao) > 3:
+                print(posicao)
             jogadors = Jogador(nome=jogador, posicao=posicao, time=time)
             jogadors.save()
     except:
@@ -54,9 +75,9 @@ def carregar_times(competicao:str):
             
 def apagatudo(apaga, cria_times):
     if apaga:
-        Carreira.objects.all().delete()
-        Time.objects.all().delete()
-        Treinador.objects.all().delete()
+        #Carreira.objects.all().delete()
+        #Time.objects.all().delete()
+        #Treinador.objects.all().delete()
         Jogador.objects.all().delete()
     
     #TIMES
@@ -75,4 +96,4 @@ def apagatudo(apaga, cria_times):
             carregar_times(time)    
     
         
-#apagatudo(False, True)
+apagatudo(True, True)
