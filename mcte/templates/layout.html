@@ -110,7 +110,6 @@
 
     <main>
         <div class="container mt-5 pt-5">
-            <!-- Exibir mensagens de sucesso ou erro -->
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
@@ -120,7 +119,6 @@
                 </div>
                 {% endfor %}
             </div>
-
             {% endif %}
             {% block content %}
             {% endblock %}

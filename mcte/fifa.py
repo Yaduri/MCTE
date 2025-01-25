@@ -96,4 +96,4 @@ def apagatudo(apaga, cria_times):
             carregar_times(time)    
     
         
-apagatudo(True, True)
+apagatudo(False, True)

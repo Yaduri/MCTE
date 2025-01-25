@@ -18,21 +18,6 @@ def render(request, nome_template: str, contexto={}):
 
 # Página inicial
 def index(request):
-
-    def teste():
-        # Criar objetos
-        carreira1 = Carreira.objects.get(pk=1)
-
-        time1 = Time.objects.get(pk=1)
-        time2 = Time.objects.get(pk=2)
-
-        jogador1 = Jogador.objects.create(nome="Jogador 1")
-        jogador2 = Jogador.objects.create(nome="Jogador 2")
-
-        # Vincular Carreira, Time e Jogador
-        CarreiraTimeJogador.objects.create(carreira=carreira1, time=time1, jogador=jogador1)
-        CarreiraTimeJogador.objects.create(carreira=carreira1, time=time1, jogador=jogador2)
-    #teste()
     return render(request, 'mcte/index.html')
 
 
@@ -109,11 +94,15 @@ def adicionar_temporada(request, id):
 def criar_carreira(request):
     if request.method == "POST":
         nome:str = request.POST['nome']
-        time:int = int(request.POST['time'])
-        treinador:int = int(request.POST['treinador'])
+        time:int = int(request.POST['time_id'])
+        treinador:int = int(request.POST['treinador_id'])
         try:
             carreira = Carreira(nome=nome, time_atual_id=time, treinador_id=treinador, usuario=request.user)
             carreira.save()
+            time = Time.objects.get(pk=time)
+            jogadores = Jogador.objects.filter(time=time.nome)
+            for jogador in jogadores:
+                CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
             messages.success(request, "Carreira criada com sucesso!")
             return redirect('selecionar_carreira')
         except:
@@ -170,11 +159,11 @@ def minha_carreira(request, id=0):
 
 @login_required
 def jogadores(request, car_id:int):
-    carreira = get_object_or_404(Carreira, pk=car_id, usuario=request.user)
+    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=car_id)
+    carreira = get_object_or_404(Carreira, pk=car_id)
+        
     ativo = 'jogadores'
-    time = get_object_or_404(Time, pk=carreira.time_atual.id)
-    jogadores = Jogador.objects.filter(time=time.nome)
-    return render(request, 'carreira/jogadores.html', {'carreira': carreira, 'ativo': ativo, 'jogadores': jogadores})
+    return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
 def demitir_jogador(request, jogador_id:int):
     ...
@@ -195,6 +184,23 @@ def pesquisar_jogadores(request):
         resultados = []
     return JsonResponse(resultados, safe=False)
 
+def pesquisar_times(request):
+    query = request.GET.get('nome_time', '')
+    if query:
+        times = Time.objects.filter(nome__icontains=query)
+        resultados = [{'id': time.id, 'nome': time.nome} for time in times]
+    else:
+        resultados = []
+    return JsonResponse(resultados, safe=False)
+
+def pesquisar_treinadores(request):
+    query = request.GET.get('nome_time', '')
+    if query:
+        treinador = Treinador.objects.filter(nome__icontains=query)
+        resultados = [{'id': treinador.id, 'nome': treinador.nome} for treinador in treinador]
+    else:
+        resultados = []
+    return JsonResponse(resultados, safe=False)
 
 def detalhes_jogador(request, jogador_id:int):
     ...

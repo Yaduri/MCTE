@@ -15,6 +15,9 @@ urlpatterns = [
     path('jogadores/<int:car_id>', views.jogadores, name='jogadores'),
     path('jogadores/pesquisar/', views.pesquisar_jogadores, name='pesquisar_jogadores'),
     
+    path('times/pesquisar/', views.pesquisar_times, name='pesquisar_times'),
+    path('treinadores/pesquisar/', views.pesquisar_treinadores, name='pesquisar_treinadores'),
+    
     path('jogador/demitir/<int:jogador_id>', views.demitir_jogador, name='demitir_jogador'),
     path('jogador/contratar/', views.contratar_jogador_existente, name='contratar_jogador_existente'),
     path('jogador/contratar_novo/', views.contratar_jogador_novo, name='contratar_jogador_novo'),

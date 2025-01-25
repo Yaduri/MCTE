@@ -31,49 +31,23 @@ Criar Carreira
                         <!-- Campo Seleção de Time -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <label for="time" class="form-label mb-0">Selecione o Time</label>
+                                <p class="from-label mb-0" id="time_selec">Selecione um time:</p>
+                                <input type="hidden" name="time_id" id="time_id">
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTimeModal">
-                                    <i class="bi bi-plus-circle"></i> Adicionar Time
+                                    <i class="bi bi-plus-circle"></i> Times
                                 </button>
                             </div>
-                            <select 
-                                class="form-select selectpicker" 
-                                data-live-search="true" 
-                                id="time" 
-                                name="time" 
-                                required>
-                                <option disabled selected value="">Escolha um time</option>
-                                {% for time in times %}
-                                <option value="{{ time.id }}">{{ time.nome }}</option>
-                                {% endfor %}
-                                {% for time in times2 %}
-                                <option value="{{ time.id }}">{{ time.nome }}</option>
-                                {% endfor %}
-                            </select>
                         </div>
 
                         <!-- Campo Seleção de Treinador -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <label for="treinador" class="form-label mb-0">Selecione o Treinador</label>
+                                <p class="from-label mb-0" id="treinador_selec">Selecione um treinador:</p>
+                                <input type="hidden" name="treinador_id" id="treinador_id">
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTreinadorModal">
-                                    <i class="bi bi-plus-circle"></i> Adicionar Treinador
+                                    <i class="bi bi-plus-circle"></i> Treinadores
                                 </button>
                             </div>
-                            <select 
-                                class="form-select selectpicker" 
-                                data-live-search="true" 
-                                id="treinador" 
-                                name="treinador" 
-                                required>
-                                <option disabled selected value="">Escolha um treinador</option>
-                                {% for treinador in treinadores %}
-                                <option value="{{ treinador.id }}">{{ treinador.nome }}</option>
-                                {% endfor %}
-                                {% for treinador in treinadores2 %}
-                                <option value="{{ treinador.id }}">{{ treinador.nome }}</option>
-                                {% endfor %}
-                            </select>
                         </div>
 
                         <!-- Botão de Salvar -->
@@ -98,16 +72,51 @@ Criar Carreira
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="time-nome" class="form-label">Nome do Time</label>
-                        <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Digite o nome do time" required>
+                <!-- Tabs de opções -->
+                <ul class="nav nav-tabs" id="timeTabs" role="tablist">
+                    <!-- Primeira aba: Selecionar Existente -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="selecionar-tab" data-bs-toggle="tab" data-bs-target="#selecionar" type="button" role="tab" aria-controls="selecionar" aria-selected="true">
+                            Selecionar Existente
+                        </button>
+                    </li>
+                    <!-- Segunda aba: Criar Novo -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="criar-tab" data-bs-toggle="tab" data-bs-target="#criar" type="button" role="tab" aria-controls="criar" aria-selected="false">
+                            Criar Novo
+                        </button>
+                    </li>
+                </ul>
+                <!-- Conteúdo das Abas -->
+                <div class="tab-content mt-3" id="timeTabsContent">
+                    <!-- Conteúdo da aba Selecionar Existente -->
+                    <div class="tab-pane fade show active" id="selecionar" role="tabpanel" aria-labelledby="selecionar-tab">
+                        <form id="selecionarTime">
+                            <div class="mb-3">
+                                <label for="pesquisarTime" class="form-label">Pesquisar Time</label>
+                                <input type="text" id="pesquisarTime" class="form-control" placeholder="Digite o nome do time">
+                            </div>
+                            <ul id="resultadoPesquisa" class="list-group">
+                                <!-- Resultados da pesquisa aparecerão aqui -->
+                            </ul>
+                        </form>
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    <!-- Conteúdo da aba Criar Novo -->
+                    <div class="tab-pane fade" id="criar" role="tabpanel" aria-labelledby="criar-tab">
+                        <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="time-nome" class="form-label">Nome do Time</label>
+                                <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Digite o nome do time" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Adicionar</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+
+                </div>
+                
             </div>
         </div>
     </div>
@@ -122,18 +131,131 @@ Criar Carreira
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'criar_treinador' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="treinador-nome" class="form-label">Nome do Treinador</label>
-                        <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Digite o nome do treinador" required>
+                <!-- Tabs de opções -->
+                <ul class="nav nav-tabs" id="treinadorTabs" role="tablist">
+                    <!-- Primeira aba: Selecionar Existente -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="selecionar-tab2" data-bs-toggle="tab" data-bs-target="#selecionar2" type="button" role="tab" aria-controls="selecionar2" aria-selected="true">
+                            Selecionar Existente
+                        </button>
+                    </li>
+                    <!-- Segunda aba: Criar Novo -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="criar-tab2" data-bs-toggle="tab" data-bs-target="#criar2" type="button" role="tab" aria-controls="criar2" aria-selected="false">
+                            Criar Novo
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Conteúdo das Abas -->
+                <div class="tab-content mt-3" id="treinadorTabsContent">
+                    <!-- Conteúdo da aba Selecionar Existente -->
+                    <div class="tab-pane fade show active" id="selecionar2" role="tabpanel" aria-labelledby="selecionar-tab2">
+                        <form id="selecionarTime">
+                            <div class="mb-3">
+                                <label for="pesquisarTreinador" class="form-label">Pesquisar Treinador</label>
+                                <input type="text" id="pesquisarTreinador" class="form-control" placeholder="Digite o nome do treinador">
+                            </div>
+                            <ul id="resultadoPesquisa2" class="list-group">
+                                <!-- Resultados da pesquisa aparecerão aqui -->
+                            </ul>
+                        </form>
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    <!-- Conteúdo da aba Criar Novo -->
+                    <div class="tab-pane fade" id="criar2" role="tabpanel" aria-labelledby="criar-tab2">
+                        <form method="POST" action="{% url 'criar_treinador' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="treinador-nome" class="form-label">Nome do Treinador</label>
+                                <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Digite o nome do time" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Adicionar</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+    
+    function pesquisarTimes(query) {
+        
+        if (query.length < 1) {
+            document.getElementById('resultadoPesquisa').innerHTML = '';
+            return;
+        }
+        const url = '{% url 'pesquisar_times' %}'
+        fetch(url + `?nome_time=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const lista = document.getElementById('resultadoPesquisa');
+                lista.innerHTML = '';
+                data.forEach(time => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item carreira-card';
+                    item.textContent = time.nome;
+                    item.onclick = () => selecionarJogador(time.id, time.nome);
+                    lista.appendChild(item);
+                });
+            });
+    }
+    
+    function selecionarJogador(time_id, nome_time) {
+        // Atualizar o conteúdo do elemento com ID "time_selec"
+        document.getElementById('time_selec').textContent = nome_time;
+        document.getElementById('time_id').value = time_id;
+    
+        // Fechar o modal com ID "addTimeModal"
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addTimeModal'));
+        modal.hide();
+    }
+    
+    document.getElementById('pesquisarTime').addEventListener('input', function () {
+        pesquisarTimes(this.value);
+    });
+
+    function pesquisarTreinadores(query) {
+        
+        if (query.length < 1) {
+            document.getElementById('resultadoPesquisa2').innerHTML = '';
+            return;
+        }
+        const url = '{% url 'pesquisar_treinadores' %}'
+        fetch(url + `?nome_time=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const lista = document.getElementById('resultadoPesquisa2');
+                lista.innerHTML = '';
+                data.forEach(treinador => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item carreira-card';
+                    item.textContent = treinador.nome;
+                    item.onclick = () => selecionarTreinador(treinador.id, treinador.nome);
+                    lista.appendChild(item);
+                });
+            });
+    }
+    
+    function selecionarTreinador(id, nome) {
+        // Atualizar o conteúdo do elemento com ID "time_selec"
+        document.getElementById('treinador_selec').textContent = nome;
+        document.getElementById('treinador_id').value = id;
+    
+        // Fechar o modal com ID "addTimeModal"
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addTreinadorModal'));
+        modal.hide();
+    }
+    
+    document.getElementById('pesquisarTreinador').addEventListener('input', function () {
+        pesquisarTreinadores(this.value);
+    });
+
+
+</script>
+
 {% endblock %}

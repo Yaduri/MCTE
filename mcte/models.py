@@ -14,6 +14,7 @@ def validar_tamanho_imagem(imagem):
 # Crie seus modelos aqui
 class Time(models.Model):
     nome = models.CharField(max_length=50, unique=True)
+    apelido = models.CharField(max_length=50, default="")
     logo = models.ImageField(upload_to='times/', blank=True, null=True, validators=[validar_tamanho_imagem])
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
     criado = models.BooleanField('Time foi criado manualmente?', default=False)
@@ -96,10 +97,6 @@ class Campeonato(models.Model):
     def __str__(self):
         return self.nome
     
-
-
-
-
     
 class Temporada(models.Model):
     data = models.CharField(max_length=50, default=f"{date.today().year}/{date.today().year + 1}")
@@ -109,8 +106,6 @@ class Temporada(models.Model):
     
     def __str__(self):
         return self.data
-
-
 
 class Estatistica(models.Model):
     jogos = models.IntegerField('Quantidade de Jogos', validators=[MinValueValidator(0)], default=0)
