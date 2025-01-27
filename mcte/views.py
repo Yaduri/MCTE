@@ -121,7 +121,8 @@ def criar_time(request):
     if request.method == "POST":
         nome = request.POST['nome']
         try:
-            time = Time(nome=nome, usuario=request.user, criado=True)
+            time = Time(nome=nome, usuario=request.user, criado=True, logo=request.FILES['logo'])
+            #time = Time(nome=nome, usuario=request.user, criado=True)
             time.save()
             messages.success(request, "Time criado com sucesso!")
             return redirect('criar_carreira')
@@ -188,7 +189,7 @@ def pesquisar_times(request):
     query = request.GET.get('nome_time', '')
     if query:
         times = Time.objects.filter(nome__icontains=query)
-        resultados = [{'id': time.id, 'nome': time.nome} for time in times]
+        resultados = [{'id': time.id, 'nome': time.nome, 'logo': time.logo.url} for time in times]
     else:
         resultados = []
     return JsonResponse(resultados, safe=False)

@@ -2,6 +2,28 @@ from .models import *
 import requests
 from django.shortcuts import get_object_or_404
 from time import sleep
+from django.core.files.base import ContentFile
+
+def salvar_imagem(url_img, instancia_model:Time, nome_time):
+    try:
+        # Faz o download da imagem
+        resposta = requests.get(url_img, stream=True)
+        resposta.raise_for_status()  # Garante que não houve erro no download
+
+        # Extrai o nome do arquivo da URL
+        nome_arquivo = nome_time + ' - ' + url_img.split("/")[-1]
+
+        # Salva o arquivo na instância do modelo
+        instancia_model.logo.save(nome_arquivo, ContentFile(resposta.content), save=True)
+        print("Imagem salva com sucesso!")
+    except requests.RequestException as e:
+        print(f"Erro ao fazer o download da imagem: {e}")
+    except Exception as e:
+        print(f"Erro ao salvar a imagem: {e}")
+
+
+
+
 
 API_KEY = '82cc7a11406643bba1f2fff9d50c9197'
 BASE_URL = 'https://api.football-data.org/v4/'
@@ -23,8 +45,11 @@ def obter_times_compet(compet:str):
 def test(nome:str, logo:str):
     teste = Time.objects.filter(nome=nome)
     if not teste:
-        aa = Time(nome=nome, logo=logo, usuario=None)
+        #aa = Time(nome=nome, logo=logo, usuario=None)
+        aa = Time(nome=nome, usuario=None)
         aa.save()
+        salvar_imagem(logo, aa, nome)
+        
 
 def testT(nome:str):
     teste = Treinador.objects.filter(nome=nome)
@@ -75,9 +100,9 @@ def carregar_times(competicao:str):
             
 def apagatudo(apaga, cria_times):
     if apaga:
-        #Carreira.objects.all().delete()
-        #Time.objects.all().delete()
-        #Treinador.objects.all().delete()
+        Carreira.objects.all().delete()
+        Time.objects.all().delete()
+        Treinador.objects.all().delete()
         Jogador.objects.all().delete()
     
     #TIMES
@@ -96,4 +121,4 @@ def apagatudo(apaga, cria_times):
             carregar_times(time)    
     
         
-apagatudo(False, True)
+#apagatudo(True, True)

@@ -28,6 +28,12 @@ SECRET_KEY = 'django-insecure-n=aif6c*+9a2&=(8!a$npgvi^cf66hv9_@wx!cyctl%80-zht@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+PRODUCAO = False
+
+if BASE_DIR.drive != 'C:':
+    PRODUCAO = True
+    DEBUG = False
+
 ALLOWED_HOSTS = ["*"]
 
 

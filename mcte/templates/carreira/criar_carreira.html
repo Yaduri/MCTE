@@ -109,6 +109,10 @@ Criar Carreira
                                 <label for="time-nome" class="form-label">Nome do Time</label>
                                 <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Digite o nome do time" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="logo" class="form-label">Logo do Time (opcional)</label>
+                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Adicionar</button>
                             </div>
@@ -189,17 +193,35 @@ Criar Carreira
             document.getElementById('resultadoPesquisa').innerHTML = '';
             return;
         }
-        const url = '{% url 'pesquisar_times' %}'
+        const url = `{% url 'pesquisar_times' %}`
         fetch(url + `?nome_time=${query}`)
             .then(response => response.json())
             .then(data => {
                 const lista = document.getElementById('resultadoPesquisa');
                 lista.innerHTML = '';
                 data.forEach(time => {
+                    //teste
+                    
                     const item = document.createElement('li');
-                    item.className = 'list-group-item carreira-card';
-                    item.textContent = time.nome;
+                    item.className = 'list-group-item carreira-card d-flex align-items-center';
+                    
+                    const logo = document.createElement('img');
+                    logo.src = time.logo; // URL da logo do time
+                    logo.alt = `Logo do ${time.nome}`; // Texto alternativo
+                    logo.style.width = '40px'; // Define o tamanho da imagem
+                    logo.style.height = '40px'; // Define o tamanho da imagem
+                    logo.style.marginRight = '10px'; // Espaço entre a logo e o texto
+                    logo.style.borderRadius = '50%'; // Deixa a logo com bordas arredondadas
+
                     item.onclick = () => selecionarJogador(time.id, time.nome);
+
+                    const texto = document.createTextNode(time.nome);
+
+                    // Adiciona a logo e o texto ao item da lista
+                    item.appendChild(logo);
+                    item.appendChild(texto);
+
+                    // Adiciona o item à lista
                     lista.appendChild(item);
                 });
             });
@@ -225,7 +247,7 @@ Criar Carreira
             document.getElementById('resultadoPesquisa2').innerHTML = '';
             return;
         }
-        const url = '{% url 'pesquisar_treinadores' %}'
+        const url = `{% url 'pesquisar_treinadores' %}`
         fetch(url + `?nome_time=${query}`)
             .then(response => response.json())
             .then(data => {
