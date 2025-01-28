@@ -18,6 +18,10 @@ def render(request, nome_template: str, contexto={}):
 
 # Página inicial
 def index(request):
+    if request.user.is_authenticated:
+        carreiras_usuario = Carreira.objects.filter(usuario=request.user)
+        ativo = 'carreiras'
+        return render(request, 'carreira/selecionar_carreira.html', {'carreiras': carreiras_usuario, 'ativo': ativo})
     return render(request, 'mcte/index.html')
 
 
@@ -58,6 +62,7 @@ def signup(request):
 @login_required
 def meu_perfil(request):
     user = request.user
+    ativo = 'meu perfil'
     if request.method == "POST":
         user.username = request.POST["username"]
         user.email = request.POST["email"]
@@ -66,7 +71,7 @@ def meu_perfil(request):
         user.save()
         messages.success(request, "Perfil atualizado com sucesso!")
         return redirect('meu_perfil')
-    return render(request, 'mcte/meu_perfil.html', {'user': user})
+    return render(request, 'mcte/meu_perfil.html', {'user': user, 'ativo': ativo})
 
 
 # Visualizar carreiras
@@ -103,6 +108,7 @@ def criar_carreira(request):
             jogadores = Jogador.objects.filter(time=time.nome)
             for jogador in jogadores:
                 CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
+            Temporada.objects.create(carreira=carreira, data='24/25')
             messages.success(request, "Carreira criada com sucesso!")
             return redirect('selecionar_carreira')
         except:
@@ -164,9 +170,6 @@ def jogadores(request, car_id:int):
     carreira = get_object_or_404(Carreira, pk=car_id)
         
     ativo = 'jogadores'
-    if carreiraTimeJogador:
-        for teste in carreiraTimeJogador:
-            print(teste.time_atual)
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
 def demitir_jogador(request, jogador_id:int, carreira_id:int):

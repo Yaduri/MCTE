@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
+
 {{ carreira.nome }}
 {% endblock %}
 
@@ -64,8 +65,9 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="novaTemporada" class="form-label">Ano</label>
-                        <input type="text" class="form-control" id="novaTemporada" name="novaTemporada" placeholder="Ex: 23/24, 24/25" required>
+                        <input type="text" class="form-control" id="novaTemporada" name="novaTemporada" placeholder="Ex: 24/25" required maxlength="5" pattern="\d{2}/\d{2}" title="O formato deve ser nn/nn, onde n é um número (exemplo: 24/25)" oninput="formatarTemporada(this)" onkeydown="permitirApagarBarra(event)">
                     </div>
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
@@ -74,4 +76,59 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+    function formatarTemporada(input) {
+        let valor = input.value;
+
+        // Remove tudo que não for número
+        valor = valor.replace(/[^0-9/]/g, '');
+
+        // Adiciona a barra automaticamente após dois números
+        console.log(valor)
+        if (valor.length === 2) {
+            valor = valor.slice(0, 2) + '/' + valor.slice(2, 4);
+        }
+
+        // Limita o tamanho máximo a 5 caracteres (nn/nn)
+        if (valor.length > 5) {
+            valor = valor.slice(0, 5);
+        }
+
+        // Atualiza o valor no campo
+        input.value = valor;
+    }
+    function formatarTemporada(input) {
+        let valor = input.value;
+
+        // Remove tudo que não for número ou barra
+        valor = valor.replace(/[^0-9/]/g, '');
+
+        // Insere a barra automaticamente após o segundo dígito (se não houver ainda)
+        if (valor.length === 2 && !valor.includes('/')) {
+            valor += '/';
+        }
+
+        // Limita o tamanho máximo a 5 caracteres (nn/nn)
+        if (valor.length > 5) {
+            valor = valor.slice(0, 5);
+        }
+
+        // Atualiza o valor no campo
+        input.value = valor;
+    }
+
+    function permitirApagarBarra(event) {
+        const input = event.target;
+        const valor = input.value;
+
+        // Permitir apagar a barra ao pressionar backspace
+        if (event.key === 'Backspace' && valor.endsWith('/')) {
+            input.value = valor.slice(0, -1); // Remove a barra manualmente
+            event.preventDefault(); // Evita o comportamento padrão
+        }
+    }
+</script>
+
 {% endblock %}
