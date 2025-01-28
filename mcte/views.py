@@ -208,8 +208,10 @@ def contratar_jogador_existente(request):
 def contratar_jogador_novo(request):
     ...
 
-
-def estatisticas(request):
+@login_required
+def estatisticas(request, car_id:int):
+    carreira = get_object_or_404(Carreira, pk=car_id)
+    return render(request, 'carreira/estatisticas.html', {'carreira': carreira})
     ...
 
 @login_required
