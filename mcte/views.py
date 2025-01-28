@@ -153,28 +153,53 @@ def minha_carreira(request, id=0):
         jogadores = Jogador.objects.filter(usuario=request.user)
         estatisticas = Estatistica.objects.filter(carreira=carreira, jogador__in=jogadores)
         
-        ativo = 'carreiras'
+        ativo = 'minha carreira'
         context = {'carreira': carreira, 'temporadas': temporadas, 'estatisticas': estatisticas, 'ativo': ativo}
         
         return render(request, 'carreira/carreira.html', context)
 
 @login_required
 def jogadores(request, car_id:int):
-    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=car_id)
+    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=car_id, time_atual=True)
     carreira = get_object_or_404(Carreira, pk=car_id)
         
     ativo = 'jogadores'
     if carreiraTimeJogador:
         for teste in carreiraTimeJogador:
-            print(teste.jogador.nome)
-            if teste.jogador.foto:
-                print(teste.jogador.foto.url)
+            print(teste.time_atual)
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
-def demitir_jogador(request, jogador_id:int):
-    ...
+def demitir_jogador(request, jogador_id:int, carreira_id:int):
+    try:
+        carreiraTimeJogador = CarreiraTimeJogador.objects.get(carreira_id=carreira_id, jogador_id=jogador_id)
+        carreiraTimeJogador.time_atual = False
+        carreiraTimeJogador.save()
+        messages.success(request, f"{carreiraTimeJogador.jogador.nome} demitido com sucesso!")
+        return redirect('jogadores', carreira_id)
+    except Exception as err:
+        messages.error(request, f"Erro ao demitir {carreiraTimeJogador.jogador.nome}!")
+        return redirect('jogadores', carreira_id)
 
 def contratar_jogador_existente(request):
+    jogador_id = int(request.GET['jogador_id'])
+    carreira_id = int(request.GET['carreira_id'])
+    carreira = Carreira.objects.get(pk=carreira_id)
+    time = carreira.time_atual
+    jogador = Jogador.objects.get(pk=jogador_id)
+    try:
+        carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira=carreira, jogador=jogador)
+        if not carreiraTimeJogador:
+            carreiraTimeJogador = CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
+        else:
+            carreiraTimeJogador = CarreiraTimeJogador.objects.get(carreira=carreira, jogador=jogador)
+            carreiraTimeJogador.time_atual = True
+        carreiraTimeJogador.save()
+        messages.success(request, f"{jogador.nome} contratado!")
+        return redirect('jogadores', carreira_id)
+    except Exception as err:
+                messages.error(request, f"Erro ao contratar!")
+                return redirect('jogadores', carreira_id)
+    
     print(request.GET)
     ...
 

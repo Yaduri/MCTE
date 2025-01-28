@@ -18,7 +18,7 @@ urlpatterns = [
     path('times/pesquisar/', views.pesquisar_times, name='pesquisar_times'),
     path('treinadores/pesquisar/', views.pesquisar_treinadores, name='pesquisar_treinadores'),
     
-    path('jogador/demitir/<int:jogador_id>', views.demitir_jogador, name='demitir_jogador'),
+    path('jogador/demitir/<int:jogador_id>/<int:carreira_id>', views.demitir_jogador, name='demitir_jogador'),
     path('jogador/contratar/', views.contratar_jogador_existente, name='contratar_jogador_existente'),
     path('jogador/contratar_novo/', views.contratar_jogador_novo, name='contratar_jogador_novo'),
     path('jogador/detalhes/<int:jogador_id>', views.detalhes_jogador, name='detalhes_jogador'),

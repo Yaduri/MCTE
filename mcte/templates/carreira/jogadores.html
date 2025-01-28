@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <!-- Botão de demissão -->
-                    <form method="POST" action="{% url 'demitir_jogador' carr_jog.jogador.id %}" class="mt-2">
+                    <form method="POST" action="{% url 'demitir_jogador' carr_jog.jogador.id carreira.id %}" class="mt-2">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                             <i class="bi bi-person-dash"></i> Demitir
@@ -152,7 +152,26 @@
 
     // Seleção de jogador
     function selecionarJogador(id) {
-        alert(`Jogador ${id} selecionado!`);
+        const url = `{% url 'contratar_jogador_existente' %}`;
+        fetch(url + `?jogador_id=${id}&carreira_id={{ carreira.id }}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}', // Inclua o token CSRF para autenticação
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirecionar após o sucesso
+                window.location.href = `{% url 'jogadores' carreira.id %}`;
+            } else {
+                alert('Erro ao contratar jogador. Por favor, tente novamente.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Ocorreu um erro ao processar sua solicitação.');
+        });
     }
 
     // Evento de pesquisa ao digitar
