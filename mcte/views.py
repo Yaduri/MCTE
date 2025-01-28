@@ -246,6 +246,7 @@ def pesquisar_treinadores(request):
 
 @login_required
 def detalhes_jogador(request, jogador_id:int):
+    return redirect('jogadores')
     ...
 
 @login_required
