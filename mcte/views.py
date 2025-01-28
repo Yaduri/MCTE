@@ -161,7 +161,6 @@ def minha_carreira(request, id=0):
         
         ativo = 'minha carreira'
         context = {'carreira': carreira, 'temporadas': temporadas, 'estatisticas': estatisticas, 'ativo': ativo}
-        
         return render(request, 'carreira/carreira.html', context)
 
 @login_required
@@ -172,6 +171,7 @@ def jogadores(request, car_id:int):
     ativo = 'jogadores'
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
+@login_required
 def demitir_jogador(request, jogador_id:int, carreira_id:int):
     try:
         carreiraTimeJogador = CarreiraTimeJogador.objects.get(carreira_id=carreira_id, jogador_id=jogador_id)
@@ -183,6 +183,7 @@ def demitir_jogador(request, jogador_id:int, carreira_id:int):
         messages.error(request, f"Erro ao demitir {carreiraTimeJogador.jogador.nome}!")
         return redirect('jogadores', carreira_id)
 
+@login_required
 def contratar_jogador_existente(request):
     jogador_id = int(request.GET['jogador_id'])
     carreira_id = int(request.GET['carreira_id'])
@@ -203,12 +204,15 @@ def contratar_jogador_existente(request):
                 messages.error(request, f"Erro ao contratar!")
                 return redirect('jogadores', carreira_id)
     
-    print(request.GET)
-    ...
-
+@login_required
 def contratar_jogador_novo(request):
     ...
 
+
+def estatisticas(request):
+    ...
+
+@login_required
 def pesquisar_jogadores(request):
     query = request.GET.get('nome_jogador', '')
     if query:
@@ -218,6 +222,7 @@ def pesquisar_jogadores(request):
         resultados = []
     return JsonResponse(resultados, safe=False)
 
+@login_required
 def pesquisar_times(request):
     query = request.GET.get('nome_time', '')
     if query:
@@ -227,6 +232,7 @@ def pesquisar_times(request):
         resultados = []
     return JsonResponse(resultados, safe=False)
 
+@login_required
 def pesquisar_treinadores(request):
     query = request.GET.get('nome_time', '')
     if query:
@@ -236,10 +242,11 @@ def pesquisar_treinadores(request):
         resultados = []
     return JsonResponse(resultados, safe=False)
 
+@login_required
 def detalhes_jogador(request, jogador_id:int):
     ...
 
-# Logout
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('index')
