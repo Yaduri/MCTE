@@ -11,7 +11,7 @@ Criar Carreira
     <!-- Formulário para criar uma nova carreira -->
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <form method="POST" action="{% url 'criar_carreira' %}">
                         {% csrf_token %}
@@ -30,22 +30,24 @@ Criar Carreira
 
                         <!-- Campo Seleção de Time -->
                         <div class="mb-3">
+                            <label class="form-label" for="time_selec">Selecione um time:</label>
+                            <input type="hidden" name="time_id" id="time_id">
                             <div class="d-flex justify-content-between align-items-center">
-                                <p class="from-label mb-0" id="time_selec">Selecione um time:</p>
-                                <input type="hidden" name="time_id" id="time_id">
+                                <p class="form-label mb-0" id="time_selec">Nenhum Time Selecionado</p>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTimeModal">
-                                    <i class="bi bi-plus-circle"></i> Times
+                                    <i class="bi bi-plus-circle"></i> Escolher
                                 </button>
                             </div>
                         </div>
 
                         <!-- Campo Seleção de Treinador -->
                         <div class="mb-3">
+                            <label class="form-label" for="treinador_selec">Selecione um treinador:</label>
+                            <input type="hidden" name="treinador_id" id="treinador_id">
                             <div class="d-flex justify-content-between align-items-center">
-                                <p class="from-label mb-0" id="treinador_selec">Selecione um treinador:</p>
-                                <input type="hidden" name="treinador_id" id="treinador_id">
+                                <p class="form-label mb-0" id="treinador_selec">Nenhum Treinador Selecionado</p>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTreinadorModal">
-                                    <i class="bi bi-plus-circle"></i> Treinadores
+                                    <i class="bi bi-plus-circle"></i> Escolher
                                 </button>
                             </div>
                         </div>
@@ -74,53 +76,42 @@ Criar Carreira
             <div class="modal-body">
                 <!-- Tabs de opções -->
                 <ul class="nav nav-tabs" id="timeTabs" role="tablist">
-                    <!-- Primeira aba: Selecionar Existente -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="selecionar-tab" data-bs-toggle="tab" data-bs-target="#selecionar" type="button" role="tab" aria-controls="selecionar" aria-selected="true">
                             Selecionar Existente
                         </button>
                     </li>
-                    <!-- Segunda aba: Criar Novo -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="criar-tab" data-bs-toggle="tab" data-bs-target="#criar" type="button" role="tab" aria-controls="criar" aria-selected="false">
                             Criar Novo
                         </button>
                     </li>
                 </ul>
-                <!-- Conteúdo das Abas -->
                 <div class="tab-content mt-3" id="timeTabsContent">
                     <!-- Conteúdo da aba Selecionar Existente -->
                     <div class="tab-pane fade show active" id="selecionar" role="tabpanel" aria-labelledby="selecionar-tab">
                         <form id="selecionarTime">
                             <div class="mb-3">
-                                <label for="pesquisarTime" class="form-label">Pesquisar Time</label>
-                                <input type="text" id="pesquisarTime" class="form-control" placeholder="Digite o nome do time">
+                                <input type="text" id="pesquisarTime" class="form-control" placeholder="Pesquisar time...">
                             </div>
                             <ul id="resultadoPesquisa" class="list-group">
-                                <!-- Resultados da pesquisa aparecerão aqui -->
+                                <!-- Resultados da pesquisa -->
                             </ul>
                         </form>
                     </div>
-                    <!-- Conteúdo da aba Criar Novo -->
                     <div class="tab-pane fade" id="criar" role="tabpanel" aria-labelledby="criar-tab">
                         <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="time-nome" class="form-label">Nome do Time</label>
-                                <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Digite o nome do time" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="logo" class="form-label">Logo do Time (opcional)</label>
-                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Nome do Time" required>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Adicionar</button>
                             </div>
                         </form>
                     </div>
-
                 </div>
-                
             </div>
         </div>
     </div>
@@ -135,43 +126,35 @@ Criar Carreira
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Tabs de opções -->
                 <ul class="nav nav-tabs" id="treinadorTabs" role="tablist">
-                    <!-- Primeira aba: Selecionar Existente -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="selecionar-tab2" data-bs-toggle="tab" data-bs-target="#selecionar2" type="button" role="tab" aria-controls="selecionar2" aria-selected="true">
                             Selecionar Existente
                         </button>
                     </li>
-                    <!-- Segunda aba: Criar Novo -->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="criar-tab2" data-bs-toggle="tab" data-bs-target="#criar2" type="button" role="tab" aria-controls="criar2" aria-selected="false">
                             Criar Novo
                         </button>
                     </li>
                 </ul>
-
-                <!-- Conteúdo das Abas -->
                 <div class="tab-content mt-3" id="treinadorTabsContent">
-                    <!-- Conteúdo da aba Selecionar Existente -->
                     <div class="tab-pane fade show active" id="selecionar2" role="tabpanel" aria-labelledby="selecionar-tab2">
-                        <form id="selecionarTime">
+                        <form id="selecionarTreinador">
                             <div class="mb-3">
-                                <label for="pesquisarTreinador" class="form-label">Pesquisar Treinador</label>
-                                <input type="text" id="pesquisarTreinador" class="form-control" placeholder="Digite o nome do treinador">
+                                <input type="text" id="pesquisarTreinador" class="form-control" placeholder="Pesquisar treinador...">
                             </div>
                             <ul id="resultadoPesquisa2" class="list-group">
-                                <!-- Resultados da pesquisa aparecerão aqui -->
+                                <!-- Resultados da pesquisa -->
                             </ul>
                         </form>
                     </div>
-                    <!-- Conteúdo da aba Criar Novo -->
                     <div class="tab-pane fade" id="criar2" role="tabpanel" aria-labelledby="criar-tab2">
-                        <form method="POST" action="{% url 'criar_treinador' %}" enctype="multipart/form-data">
+                        <form method="POST" action="{% url 'criar_treinador' %}">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="treinador-nome" class="form-label">Nome do Treinador</label>
-                                <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Digite o nome do treinador" required>
+                                <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Nome do Treinador" required>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Adicionar</button>

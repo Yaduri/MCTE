@@ -191,6 +191,20 @@ def salvar_imagem_jogador(instancia_model:Jogador, nome_jogador, idade_api):
 API_KEY = '82cc7a11406643bba1f2fff9d50c9197'
 BASE_URL = 'https://api.football-data.org/v4/'
 
+def obter_compet(nome_comept:str):
+    url = f"{BASE_URL}competitions/{nome_comept}"  # Exemplo para Premier League
+    #url = f"{BASE_URL}/teams"  # Exemplo para Premier League
+    headers = {'X-Auth-Token': API_KEY}
+    params = {
+        'limit': 9999,
+    }
+    response = requests.get(url, headers=headers, params=params)
+    sleep(1) #era 2
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
 def obter_times_compet(compet:str):
     url = f"{BASE_URL}competitions/{compet}/teams"  # Exemplo para Premier League
     #url = f"{BASE_URL}/teams"  # Exemplo para Premier League
@@ -411,5 +425,6 @@ def apagar_fotos_treinadores():
     print("Fotos de todos os treinadores foram apagadas.")
 
 #apagar_fotos_treinadores()
-cria_tudo()
+#cria_tudo()
+
 print('acabou')

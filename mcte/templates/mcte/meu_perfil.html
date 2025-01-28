@@ -5,23 +5,40 @@ Meu Perfil
 {% endblock %}
 
 {% block content %}
-<h1>Meu Perfil</h1>
-<form method="POST" action="{% url 'meu_perfil' %}">
-    {% csrf_token %}
-    <div class="mb-3">
-        <input type="text" class="form-control" name="username" placeholder="Usuario" autofocus="" maxlength="150" required="" id="id_username" value="{{user.username}}">
-    </div>
-    <div class="mb-3">
-        <input type="text" class="form-control" name="first_name" placeholder="Primeiro Nome" autofocus="" maxlength="150" id="id_first_name" value="{{user.first_name}}">
-    </div>
-    <div class="mb-3">
-        <input type="text" class="form-control" name="last_name" placeholder="Sobrenome" autofocus="" maxlength="150" id="id_last_name" value="{{user.last_name}}">
-    </div>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Meu Perfil</h1>
 
-    <div class="mb-3">
-        <input type="email" class="form-control" name="email", placeholder="email" value="{{user.email}}">
-    </div>
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
+    <form method="POST" action="{% url 'meu_perfil' %}" class="row justify-content-center">
+        {% csrf_token %}
+        
+        <div class="col-12 col-md-8 col-lg-6">
+            <!-- Campo Nome de Usuário -->
+            <div class="mb-3">
+                <input type="text" class="form-control" name="username" placeholder="Usuário" maxlength="150" required value="{{user.username}}">
+            </div>
 
+            <!-- Campo Primeiro Nome -->
+            <div class="mb-3">
+                <input type="text" class="form-control" name="first_name" placeholder="Primeiro Nome" maxlength="150" value="{{user.first_name}}">
+            </div>
+
+            <!-- Campo Sobrenome -->
+            <div class="mb-3">
+                <input type="text" class="form-control" name="last_name" placeholder="Sobrenome" maxlength="150" value="{{user.last_name}}">
+            </div>
+
+            <!-- Campo E-mail -->
+            <div class="mb-3">
+                <input type="email" class="form-control" name="email" placeholder="Email" value="{{user.email}}">
+            </div>
+
+            <!-- Botão Salvar -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock %}
