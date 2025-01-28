@@ -1,12 +1,14 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-  {{ carreira.nome }} - Jogadores
+
+{{ carreira.nome }} - Jogadores
 {% endblock %}
 
 {% block time %}
+
 {{ carreira.treinador.nome }}
-{% endblock %}  
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
@@ -19,33 +21,46 @@
     </div>
 
     <!-- Lista de jogadores -->
-    <div class="row">
-        {% for carr_jog in carr %}
-        <div class="col-12 col-md-6 col-lg-4 mb-4">
-            <!-- Card do Jogador -->
-            <div 
-                class="card shadow-sm jogador-card" 
-                onclick="window.location.href='{% url 'detalhes_jogador' carr_jog.jogador.id %}'" 
-                style="cursor: pointer;"
-            >
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+<div class="row">
+    {% for carr_jog in carr %}
+    <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <!-- Card do Jogador -->
+        <div 
+            class="card shadow-sm jogador-card" 
+            onclick="window.location.href=`{% url 'detalhes_jogador' carr_jog.jogador.id %}`" 
+            style="cursor: pointer;"
+        >
+            <div class="card-body">
+                <!-- Layout flex para imagem e texto -->
+                <div class="d-flex align-items-center justify-content-between">
+                    <!-- Imagem e nome -->
+                    <div class="d-flex align-items-center">
+                        {% if carr_jog.jogador.foto %}
+                            <img 
+                                src="{{ carr_jog.jogador.foto.url }}" 
+                                alt="{{ carr_jog.jogador.nome }}" 
+                                style="width: 28px; height: 36px; object-fit: cover; margin-right: 10px;"
+                            >
+                        {% endif %}
                         <div>
                             <h5 class="card-title mb-1"><strong>{{ carr_jog.jogador.nome }}</strong></h5>
                             <p class="text-muted mb-0">{{ carr_jog.jogador.posicao }}</p>
                         </div>
-                        <form method="POST" action="{% url 'demitir_jogador' carr_jog.jogador.id %}" class="ms-2">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="bi bi-person-dash"></i> Demitir
-                            </button>
-                        </form>
                     </div>
+                    <!-- Botão de demissão -->
+                    <form method="POST" action="{% url 'demitir_jogador' carr_jog.jogador.id %}" class="ms-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-person-dash"></i> Demitir
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
+
 </div>
 
 <div class="modal fade" id="contratarJogadorModal" tabindex="-1" aria-labelledby="contratarJogadorModalLabel" aria-hidden="true">
@@ -110,7 +125,7 @@
                                     <option value="PD">Ponta Esquerda</option>
                                     <option value="ATA">Atacante</option>
                                     <option value="PE">Ponta Direita</option>
-                                    
+
                                 </select>
                             </div>
                             <div class="d-grid">
@@ -128,9 +143,8 @@
 {% endblock %}
 {% block script %}
 <script>
-    
     function pesquisarJogadores(query) {
-        
+
         if (query.length < 1) {
             document.getElementById('resultado-pesquisa').innerHTML = '';
             return;
@@ -150,12 +164,12 @@
                 });
             });
     }
-    
+
     function selecionarJogador(id) {
         // Aqui você pode adicionar a lógica para selecionar o jogador
         alert(`Jogador ${id} selecionado!`);
     }
-    document.getElementById('pesquisarJogador').addEventListener('input', function () {
+    document.getElementById('pesquisarJogador').addEventListener('input', function() {
         pesquisarJogadores(this.value);
     });
 </script>

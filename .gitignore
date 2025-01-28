@@ -21,3 +21,8 @@ venv_mce/
 !.vscode/extensions.json 
 .history
 .vscode
+
+imagens_jogadores
+imagens_times
+imagens_treinadores
+imagens_campeonatos

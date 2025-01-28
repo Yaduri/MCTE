@@ -129,7 +129,8 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    '/home/yaduri/yaduri.pythonanywhere.com/static'
+    BASE_DIR / 'static',
+    '/home/yaduri/yaduri.pythonanywhere.com/static',
 ]
 
 # Default primary key field type

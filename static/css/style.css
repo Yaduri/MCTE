@@ -1,36 +1,131 @@
-/* Estilos gerais já existentes */
+/* Estilos gerais */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    font-family: 'Arial', sans-serif; /* Fontes mais simples e limpas */
+    background-color: #f4f4f4; /* Cor de fundo clara */
 }
 
 main {
     flex: 1;
+    padding-top: 80px; /* Ajuste para compensar o header fixo */
 }
 
 footer {
     position: relative;
     bottom: 0;
     width: 100%;
+    background-color: #333; /* Cor escura para o rodapé */
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
 }
 
-/* Estilos específicos para os cards de carreiras */
+/* Estilo de navegação - minimalista */
+.navbar {
+    background-color: #333; /* Cor escura */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.navbar-nav .nav-link {
+    color: #ccc; /* Cor suave para os links */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #fff; /* Destaque ao passar o mouse */
+}
+
+/* Cards de Carreiras */
 .carreira-card {
     transition: background-color 0.3s, box-shadow 0.3s;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Leve sombra */
 }
 
 .carreira-card:hover {
-    background-color: #f8f9fa; /* Cor clara de destaque */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Efeito de leve elevação */
+    background-color: #f8f9fa; /* Cor clara ao passar o mouse */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Aumenta a sombra */
     cursor: pointer;
 }
 
-/* Efeito de hover no card */
+/* Cards de Jogadores */
 .jogador-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .jogador-card:hover {
     transform: scale(1.05);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave */
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+.modal-body {
+    background-color: #fff;
+    padding: 20px;
+}
+
+/* Estilos de formulários */
+input, select, .selectpicker {
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+button {
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+/* Botões */
+.btn-outline-light {
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+.btn-outline-light:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.btn-warning {
+    background-color: #f0ad4e;
+    border: none;
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #e08c32;
+}
+
+/* Layout responsivo */
+@media (max-width: 768px) {
+    .navbar-brand .fs-4 {
+        font-size: 1.25rem;
+    }
+
+    .jogador-card, .carreira-card {
+        margin-bottom: 10px;
+    }
 }

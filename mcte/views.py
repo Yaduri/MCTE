@@ -164,6 +164,11 @@ def jogadores(request, car_id:int):
     carreira = get_object_or_404(Carreira, pk=car_id)
         
     ativo = 'jogadores'
+    if carreiraTimeJogador:
+        for teste in carreiraTimeJogador:
+            print(teste.jogador.nome)
+            if teste.jogador.foto:
+                print(teste.jogador.foto.url)
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
 def demitir_jogador(request, jogador_id:int):

@@ -35,7 +35,7 @@ class Jogador(models.Model):
     
     #data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
     #carreira = models.ManyToManyField(Carreira, related_name="jogadores")
-    #foto = models.ImageField(upload_to='jogadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
+    foto = models.ImageField(upload_to='jogadores/', blank=True, null=True, validators=[validar_tamanho_imagem])
     
     
     class Meta:
@@ -89,7 +89,7 @@ class CarreiraTimeJogador(models.Model):
 class Campeonato(models.Model):
     nome = models.CharField(max_length=50)
     logo = models.ImageField(upload_to='campeonatos/', blank=True, null=True, validators=[validar_tamanho_imagem])
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None)
     
     class Meta:
         ordering = ["nome"]
