@@ -5,11 +5,11 @@ Minhas Carreiras
 {% endblock %}
 
 {% block content %}
-<div class="container my-5 text-center">
-    <h1 class="mb-4">Minhas Carreiras</h1>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Minhas Carreiras</h1>
 
     <!-- Botão para criar novas carreiras -->
-    <div class="mb-4">
+    <div class="d-flex justify-content-center mb-4">
         <a href="{% url 'criar_carreira' %}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Nova Carreira
         </a>
@@ -18,11 +18,11 @@ Minhas Carreiras
     <!-- Lista de carreiras existentes -->
     <div class="row justify-content-center">
         {% for carreira in carreiras %}
-        <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <!-- Envolvendo o card com o link para a página "minha_carreira" passando o id da carreira -->
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <!-- Card para cada carreira -->
             <a href="{% url 'minha_carreira' carreira.id %}" class="text-decoration-none">
-                <div class="card h-100 carreira-card">
-                    <div class="position-relative" style="width: 200px; height: 200px; margin: 0 auto;">
+                <div class="card h-100 border-0 shadow-sm rounded-3">
+                    <div class="position-relative" style="height: 200px; height: 200px; margin: 0 auto">
                         <!-- Logo do Time -->
                         {% if carreira.time_atual.logo %}
                         {% if 'https' in carreira.time_atual.logo.url %}
@@ -33,24 +33,24 @@ Minhas Carreiras
                         {% endif %}
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h5 class="card-title text-center">
                             {{ carreira.nome }}
                         </h5>
 
                         <div class="d-flex justify-content-center align-items-center">
-                            <!-- Foto do Treinador à Esquerda (bordas quadradas e tamanho ajustado) -->
+                            <!-- Foto do Treinador à Esquerda -->
                             {% if carreira.treinador.foto %}
-                            <img src="{{ carreira.treinador.foto.url }}" class="img-fluid border border-2 border-white" 
-                                 alt="Foto do Treinador" style="width: 15%; height: 15%; margin-right: 10px;">
+                            <img src="{{ carreira.treinador.foto.url }}" class="img-fluid border border-2 border-white" alt="Foto do Treinador" style="width: 15%; height: 15%; margin-right: 10px;">
                             {% endif %}
                             <div>
-                                <p class="card-text"><strong>Time:</strong> {{ carreira.time_atual }}</p>
-                                <p class="card-text"><strong>Treinador:</strong> {{ carreira.treinador }}</p>
+                                <p class="card-text text-center"><strong>Time:</strong>
+                                    {{ carreira.time_atual }}
+                                </p>
+                                <p class="card-text text-center"><strong>Treinador:</strong>
+                                    {{ carreira.treinador }}
+                                </p>
                             </div>
                         </div>
-
-                        <!-- Campo Hidden com o ID da Carreira (não será necessário, pois o ID já está na URL) -->
-                        <input type="hidden" name="carreira_id" value="{{ carreira.id }}">
                     </div>
                 </div>
             </a>
