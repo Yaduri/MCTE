@@ -3,9 +3,23 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    font-family: 'Arial', sans-serif; /* Fontes mais simples e limpas */
+    font-family: 'Verdana', sans-serif; /* Fontes mais simples e limpas */
     background-color: #f4f4f4; /* Cor de fundo clara */
+    background: url("/static/img/background-desktop.jpg") no-repeat center center fixed;
+    background-size: cover;
 }
+
+/* Estilo para dispositivos menores (celulares) */
+
+@media (max-width: 768px) {
+    body {
+        background: url("/static/img/background-mobile.jpg") no-repeat center center fixed;
+        background-size: cover;
+    }
+}
+
+
+
 
 main {
     flex: 1;
@@ -23,8 +37,10 @@ footer {
 }
 
 /* Estilo de navegação - minimalista */
-.navbar {
-    background-color: #333; /* Cor escura */
+.navbar, header {
+    background-color: #333; /* Colocar a cor do header aqui */
+}
+.header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
