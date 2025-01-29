@@ -4,7 +4,9 @@ body {
     flex-direction: column;
     min-height: 100vh;
     font-family: 'Verdana', sans-serif; /* Fontes mais simples e limpas */
-    background-color: #f4f4f4; /* Cor de fundo clara */
+    /*background-color: #f4f4f4;  Cor de fundo clara */
+    background-color: #0e0d0d; /* Cor de fundo escura */
+    color: white;
     background: url("/static/img/background-desktop.jpg") no-repeat center center fixed;
     background-size: cover;
 }
