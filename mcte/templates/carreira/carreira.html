@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 
 {% block title %}
-
 {{ carreira.nome }}
 {% endblock %}
 
@@ -10,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+{% load static %}
 <div class="container my-5 text-center">
     <h1 class="mb-4">
         {{ carreira.nome }}
@@ -19,7 +19,7 @@
     <div class="d-flex justify-content-center align-items-center">
         <!-- Label "Temporadas:" -->
         <div class="me-2">
-            <label for="temporada" class="form-label"><strong>Temporadas:</strong></label>
+            <label for="temporada" class="form-label"><strong>Temporada:</strong></label>
         </div>
 
         <!-- Select com as temporadas -->
@@ -45,10 +45,34 @@
 
     <div class="mb-4">
         <h3>Estatísticas</h3>
-        {% if estatisticas %}
-        {% else %}
-        <p>Não há jogadores disponiveis</p>
-        {% endif %}
+        <div id="estatisticas-container">
+            {% if estatisticas %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Jogador</th>
+                                <th>Jogos</th>
+                                <th>Gols</th>
+                                <th>Assistências</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estatistica in estatisticas %}
+                            <tr>
+                                <td>{{ estatistica.jogador.nome }}</td>
+                                <td>{{ estatistica.jogos }}</td>
+                                <td>{{ estatistica.gols }}</td>
+                                <td>{{ estatistica.assistencias }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Não há estatísticas para esta temporada.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -76,29 +100,25 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Detalhamento -->
+<div class="modal fade" id="detalhamentoModal" tabindex="-1" aria-labelledby="detalhamentoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalhamentoModalLabel">Estatísticas do Jogador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detalhamento-container">
+                <!-- Detalhes do jogador vão aparecer aqui -->
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 {% block script %}
 <script>
-    function formatarTemporada(input) {
-        let valor = input.value;
-
-        // Remove tudo que não for número
-        valor = valor.replace(/[^0-9/]/g, '');
-
-        // Adiciona a barra automaticamente após dois números
-        console.log(valor)
-        if (valor.length === 2) {
-            valor = valor.slice(0, 2) + '/' + valor.slice(2, 4);
-        }
-
-        // Limita o tamanho máximo a 5 caracteres (nn/nn)
-        if (valor.length > 5) {
-            valor = valor.slice(0, 5);
-        }
-
-        // Atualiza o valor no campo
-        input.value = valor;
-    }
     function formatarTemporada(input) {
         let valor = input.value;
 
@@ -129,6 +149,115 @@
             event.preventDefault(); // Evita o comportamento padrão
         }
     }
-</script>
 
+    document.getElementById('temporada').addEventListener('change', function() {
+        var temporadaSelecionada = this.value;
+        fetchEstatisticas(temporadaSelecionada);
+    });
+
+    function fetchEstatisticas(temporada) {
+        fetch("{% url 'estatisticas_temporada' carreira.id %}?temporada=" + temporada)
+            .then(response => response.json())
+            .then(data => {
+                let estatisticasContainer = document.getElementById('estatisticas-container');
+                if (data.estatisticas.length > 0) {
+                    let tabela = `<div class="table-responsive">
+                                    <table class="table table-striped table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Jogador</th>
+                                                <th>Jogos</th>
+                                                <th>Gols</th>
+                                                <th>Assistências</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                    data.estatisticas.forEach(estatistica => {
+                        tabela += `<tr class="jogador-row" data-jogador="${estatistica.jogador}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <!-- Foto do Jogador -->
+                                            <img src="${estatistica.foto}" alt="Foto de ${estatistica.jogador}" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 10px;">
+                                            <span>${estatistica.jogador}</span>
+                                        </div>
+                                    </td>
+                                    <td>${estatistica.jogos}</td>
+                                    <td>${estatistica.gols}</td>
+                                    <td>${estatistica.assistencias}</td>
+                                </tr>`;
+                    });
+                    tabela += `</tbody></table></div>`;
+                    estatisticasContainer.innerHTML = tabela;
+    
+                    // Adicionando o evento de click para mostrar o detalhamento
+                    document.querySelectorAll('.jogador-row').forEach(row => {
+                        row.addEventListener('click', function() {
+                            const jogador = this.dataset.jogador;
+                            const estatistica = data.estatisticas.find(item => item.jogador === jogador);
+                            mostrarDetalhamento(estatistica);
+                        });
+                    });
+                } else {
+                    estatisticasContainer.innerHTML = "<p>Não há estatísticas para esta temporada.</p>";
+                }
+            })
+            .catch(error => console.error('Erro ao carregar as estatísticas:', error));
+    }
+    
+    
+    function mostrarDetalhamento(estatistica) {
+        // Exibir modal ou área de detalhamento
+        let detalhesContainer = document.getElementById('detalhamento-container');
+        
+        // Gerar tabela com as competições
+        let tabelaCompeticoes = `
+            <h4>${estatistica.jogador}</h4>
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Competição</th>
+                        <th>Jogos</th>
+                        <th>Gols</th>
+                        <th>Assistências</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+    
+        estatistica.competicoes.forEach(comp => {
+            tabelaCompeticoes += `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            ${comp.logo ? `<img src="${comp.logo}" alt="Logo de ${comp.nome}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 10px;" />` : `<img src="{% static 'img/default-league.png' %}" alt="Logo de ${comp.nome}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 10px;" />`}
+                            ${comp.nome}
+                        </div>
+                    </td>
+                    <td>${comp.jogos}</td>
+                    <td>${comp.gols}</td>
+                    <td>${comp.assistencias}</td>
+                </tr>`;
+        });
+    
+        tabelaCompeticoes += `
+                </tbody>
+            </table>
+        `;
+        
+        // Atualizar o conteúdo do container com a tabela gerada
+        detalhesContainer.innerHTML = tabelaCompeticoes;
+        
+        // Exibir o modal de detalhamento
+        $('#detalhamentoModal').modal('show');
+    }
+    
+    
+
+    // Carregar as estatísticas da temporada selecionada ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        var temporadaSelecionada = document.getElementById('temporada').value;
+        if (temporadaSelecionada) {
+            fetchEstatisticas(temporadaSelecionada);
+        }
+    });
+</script>
 {% endblock %}

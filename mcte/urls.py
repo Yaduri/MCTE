@@ -11,8 +11,16 @@ urlpatterns = [
     path('carreira/selecionar', views.selecionar_carreira, name='selecionar_carreira'),
     path('carreira/<int:id>', views.minha_carreira, name='minha_carreira'),
     path('carreira/<int:id>/adicionar_temporada/', views.adicionar_temporada, name='adicionar_temporada'),
+    path("carreira/<int:carreira_id>/estatisticas/", views.estatisticas, name="estatisticas"),
+    path("carreira/<int:carreira_id>/adicionar-estatistica/", views.adicionar_estatistica, name="adicionar_estatistica"),
+    path('carreira/<int:carreira_id>/estatisticas-temporada/', views.estatisticas_temporada, name='estatisticas_temporada'),
     
-    path('jogadores/<int:car_id>', views.jogadores, name='jogadores'),
+    path('estatistica/excluir/<int:estatistica_id>/', views.excluir_estatistica, name='excluir_estatistica'),
+    path('estatistica/editar/<int:estatistica_id>/', views.editar_estatistica, name='editar_estatistica'),
+    
+    path('adicionar_campeonato/<int:carreira_id>', views.adicionar_campeonato, name='adicionar_campeonato'),
+
+    path('jogadores/<int:carreira_id>', views.jogadores, name='jogadores'),
     path('jogadores/pesquisar/', views.pesquisar_jogadores, name='pesquisar_jogadores'),
     
     path('times/pesquisar/', views.pesquisar_times, name='pesquisar_times'),
@@ -23,7 +31,7 @@ urlpatterns = [
     path('jogador/contratar_novo/', views.contratar_jogador_novo, name='contratar_jogador_novo'),
     path('jogador/detalhes/<int:jogador_id>', views.detalhes_jogador, name='detalhes_jogador'),
     
-    path('estatisticas/<int:car_id>', views.estatisticas, name='estatisticas'),
+    
     
     
     path('criar/carreira', views.criar_carreira, name='criar_carreira'),

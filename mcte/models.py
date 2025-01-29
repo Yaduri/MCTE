@@ -109,8 +109,8 @@ class Temporada(models.Model):
 
 class Estatistica(models.Model):
     jogos = models.IntegerField('Quantidade de Jogos', validators=[MinValueValidator(0)], default=0)
-    gol = models.IntegerField('Quantidade de Gols', validators=[MinValueValidator(0)], default=0)
-    assistencia = models.IntegerField('Quantidade de Assistências', validators=[MinValueValidator(0)], default=0)
+    gols = models.IntegerField('Quantidade de Gols', validators=[MinValueValidator(0)], default=0)
+    assistencias = models.IntegerField('Quantidade de Assistências', validators=[MinValueValidator(0)], default=0)
     jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="estatisticas")
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name="estatisticas")
     carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="estatisticas")

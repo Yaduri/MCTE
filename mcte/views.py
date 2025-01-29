@@ -1,5 +1,6 @@
 #from . import fifa
-
+from django.db.models import Q
+from itertools import chain
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -93,6 +94,14 @@ def adicionar_temporada(request, id):
             messages.error(request, 'O nome da temporada é obrigatório.')
     return redirect('minha_carreira', id=carreira.id)
 
+@login_required
+def adicionar_campeonato(request, carreira_id):
+    if request.method == "POST":
+        nome = request.POST.get('nome')
+        logo = request.FILES.get('logo')
+        campeonato = Campeonato.objects.create(nome=nome, logo=logo, usuario=request.user)
+        return redirect('estatisticas', carreira_id)
+    return render(request, 'adicionar_campeonato.html')
 
 # Criar nova carreira
 @login_required
@@ -164,9 +173,9 @@ def minha_carreira(request, id=0):
         return render(request, 'carreira/carreira.html', context)
 
 @login_required
-def jogadores(request, car_id:int):
-    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=car_id, time_atual=True)
-    carreira = get_object_or_404(Carreira, pk=car_id)
+def jogadores(request, carreira_id:int):
+    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=carreira_id, time_atual=True)
+    carreira = get_object_or_404(Carreira, pk=carreira_id)
         
     ativo = 'jogadores'
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
@@ -209,10 +218,127 @@ def contratar_jogador_novo(request):
     ...
 
 @login_required
-def estatisticas(request, car_id:int):
-    carreira = get_object_or_404(Carreira, pk=car_id)
-    return render(request, 'carreira/estatisticas.html', {'carreira': carreira})
-    ...
+def estatisticas(request, carreira_id: int):
+    carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
+    temporadas = Temporada.objects.filter(carreira=carreira).prefetch_related('estatisticas__jogador')
+    campeonatos = Campeonato.objects.filter(usuario=None)
+    campeonatos2 = Campeonato.objects.filter(usuario=request.user)
+    campeonatos_combinados = chain(campeonatos, campeonatos2)
+
+    campeonatos_combinados = Campeonato.objects.filter(
+        Q(usuario=None) | Q(usuario_id=1)
+    )
+
+    context = {
+        'carreira': carreira,
+        'temporadas': temporadas,
+        'campeonatos': campeonatos_combinados,
+        'ativo': 'estatisticas'
+    }
+    return render(request, 'carreira/estatisticas.html', context)
+
+@login_required
+def adicionar_estatistica(request, carreira_id):
+    if request.method == "POST":
+        carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
+        jogador_id = request.POST.get("jogador_id")
+        campeonato_id = request.POST.get("campeonato_id")
+        temporada_id = request.POST.get("temporada_id")
+        jogos = request.POST.get("jogos")
+        gols = request.POST.get("gols")
+        assistencias = request.POST.get("assistencias")
+
+        try:
+            jogador = Jogador.objects.get(pk=jogador_id)
+            campeonato = Campeonato.objects.get(pk=campeonato_id)
+            temporada = Temporada.objects.get(pk=temporada_id)
+            Estatistica.objects.create(
+                carreira=carreira,
+                jogador=jogador,
+                campeonato=campeonato,
+                temporada=temporada,
+                jogos=jogos,
+                gols=gols,
+                assistencias=assistencias,
+            )
+            messages.success(request, "Estatística adicionada com sucesso!")
+        except Exception as e:
+            messages.error(request, f"Erro ao adicionar estatística: {e}")
+
+    return redirect("estatisticas", carreira_id=carreira_id)
+
+@login_required
+def excluir_estatistica(request, estatistica_id):
+    estatistica = get_object_or_404(Estatistica, id=estatistica_id)
+    estatistica.delete()
+    return redirect('estatisticas', carreira_id=estatistica.carreira.id)
+
+@login_required
+def editar_estatistica(request, estatistica_id):
+    estatistica = get_object_or_404(Estatistica, id=estatistica_id)
+    if request.method == 'POST':
+        jogos = request.POST['jogos']
+        gols = request.POST['gols']
+        assistencias = request.POST['assistencias']
+        estatistica.jogos = jogos
+        estatistica.gols = gols
+        estatistica.assistencias = assistencias
+        estatistica.save()
+    return redirect('estatisticas', carreira_id=estatistica.carreira.id)
+
+@login_required
+def estatisticas_temporada(request, carreira_id):
+    temporada = request.GET.get('temporada')
+    estatisticas = Estatistica.objects.filter(carreira_id=carreira_id, temporada__data=temporada)
+    
+    # Criando um dicionário para armazenar as estatísticas por jogador
+    jogadores_estatisticas = {}
+
+    for estatistica in estatisticas:
+        jogador = estatistica.jogador
+        if jogador not in jogadores_estatisticas:
+            jogadores_estatisticas[jogador] = {
+                'jogos': 0,
+                'gols': 0,
+                'assistencias': 0,
+                'foto': jogador.foto.url if jogador.foto else None,
+                'competicoes': []
+            }
+        
+        jogadores_estatisticas[jogador]['jogos'] += estatistica.jogos
+        jogadores_estatisticas[jogador]['gols'] += estatistica.gols
+        jogadores_estatisticas[jogador]['assistencias'] += estatistica.assistencias
+
+        
+        if not estatistica.campeonato.logo:
+            logo_url = ''
+        else:
+            logo_url = estatistica.campeonato.logo.url
+
+        # Adicionar as competições
+        competicao = {
+            'nome': estatistica.campeonato.nome,
+            'jogos': estatistica.jogos,
+            'gols': estatistica.gols,
+            'assistencias': estatistica.assistencias,
+            'logo': logo_url,
+        }
+        jogadores_estatisticas[jogador]['competicoes'].append(competicao)
+
+    # Preparando os dados para enviar
+    estatisticas_data = [
+        {
+            'jogador': jogador.nome,
+            'foto': dados['foto'],
+            'jogos': dados['jogos'],
+            'gols': dados['gols'],
+            'assistencias': dados['assistencias'],
+            'competicoes': dados['competicoes']
+        }
+        for jogador, dados in jogadores_estatisticas.items()
+    ]
+    
+    return JsonResponse({'estatisticas': estatisticas_data})
 
 @login_required
 def pesquisar_jogadores(request):
@@ -246,7 +372,7 @@ def pesquisar_treinadores(request):
 
 @login_required
 def detalhes_jogador(request, jogador_id:int):
-    return redirect('jogadores')
+    return redirect('jogadores', 1)
     ...
 
 @login_required
