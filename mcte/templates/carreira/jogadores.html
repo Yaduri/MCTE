@@ -135,7 +135,7 @@
             return;
         }
         const url = `{% url 'pesquisar_jogadores' %}`;
-        fetch(url + `?nome_jogador=${query}`)
+        fetch(url + `?nome_jogador=${query}&carreira_id={{carreira.id}}`)
             .then(response => response.json())
             .then(data => {
                 const lista = document.getElementById('resultadoPesquisa');

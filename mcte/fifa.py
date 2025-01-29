@@ -119,7 +119,6 @@ def buscar_imagem_treinador(nome_treinador:str):
 
     return imagens
     
-
 def salvar_imagem_time(url_img, instancia_model, nome_time):
     try:
         # Faz o download da imagem

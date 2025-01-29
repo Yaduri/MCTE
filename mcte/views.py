@@ -226,7 +226,7 @@ def estatisticas(request, carreira_id: int):
     #campeonatos_combinados = chain(campeonatos, campeonatos2)
 
     campeonatos_combinados = Campeonato.objects.filter(
-        Q(usuario=None) | Q(usuario_id=1)
+        Q(usuario=None) | Q(usuario_id=request.user.id)
     )
     jogadores = carreira.carreira_times_jogadores.all().order_by('jogador')
 
@@ -345,12 +345,22 @@ def estatisticas_temporada(request, carreira_id):
 @login_required
 def pesquisar_jogadores(request):
     query = request.GET.get('nome_jogador', '')
+    carreira_id = request.GET.get('carreira_id', '')
+    carreira = Carreira.objects.get(pk=int(carreira_id))
+    time_jogadores = carreira.carreira_times_jogadores.all()
+    
+    # Obter os IDs dos jogadores que já estão associados ao time
+    jogadores_no_time = [tj.jogador.id for tj in time_jogadores]
+    
     if query:
-        jogadores = Jogador.objects.filter(nome__icontains=query)
+        # Filtrar jogadores com base na busca, excluindo os que já estão no time
+        jogadores = Jogador.objects.filter(nome__icontains=query).exclude(id__in=jogadores_no_time)
         resultados = [{'id': jogador.id, 'nome': jogador.nome} for jogador in jogadores]
     else:
         resultados = []
+
     return JsonResponse(resultados, safe=False)
+
 
 @login_required
 def pesquisar_times(request):
