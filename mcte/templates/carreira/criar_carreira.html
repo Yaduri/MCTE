@@ -183,8 +183,6 @@ Criar Carreira
                 const lista = document.getElementById('resultadoPesquisa');
                 lista.innerHTML = '';
                 data.forEach(time => {
-                    //teste
-                    
                     const item = document.createElement('li');
                     item.className = 'list-group-item carreira-card d-flex align-items-center';
                     
@@ -237,11 +235,29 @@ Criar Carreira
                 const lista = document.getElementById('resultadoPesquisa2');
                 lista.innerHTML = '';
                 data.forEach(treinador => {
+
                     const item = document.createElement('li');
-                    item.className = 'list-group-item carreira-card';
-                    item.textContent = treinador.nome;
+                    item.className = 'list-group-item carreira-card d-flex align-items-center';
+                    
+                    const logo = document.createElement('img');
+                    logo.src = treinador.foto; 
+                    logo.alt = `Logo do ${treinador.nome}`; 
+                    logo.style.width = '35px';
+                    logo.style.height = '40px'; 
+                    logo.style.marginRight = '10px'; 
+
                     item.onclick = () => selecionarTreinador(treinador.id, treinador.nome);
+
+                    const texto = document.createTextNode(treinador.nome);
+
+                    // Adiciona a logo e o texto ao item da lista
+                    item.appendChild(logo);
+                    item.appendChild(texto);
+
+                    // Adiciona o item à lista
                     lista.appendChild(item);
+
+
                 });
             });
     }

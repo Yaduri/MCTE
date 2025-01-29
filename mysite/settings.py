@@ -33,6 +33,7 @@ PRODUCAO = False
 if BASE_DIR.drive != 'C:':
     PRODUCAO = True
     DEBUG = False
+    ...
 
 ALLOWED_HOSTS = ["*"]
 

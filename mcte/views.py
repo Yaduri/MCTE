@@ -221,19 +221,21 @@ def contratar_jogador_novo(request):
 def estatisticas(request, carreira_id: int):
     carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
     temporadas = Temporada.objects.filter(carreira=carreira).prefetch_related('estatisticas__jogador')
-    campeonatos = Campeonato.objects.filter(usuario=None)
-    campeonatos2 = Campeonato.objects.filter(usuario=request.user)
-    campeonatos_combinados = chain(campeonatos, campeonatos2)
+    #campeonatos = Campeonato.objects.filter(usuario=None)
+    #campeonatos2 = Campeonato.objects.filter(usuario=request.user)
+    #campeonatos_combinados = chain(campeonatos, campeonatos2)
 
     campeonatos_combinados = Campeonato.objects.filter(
         Q(usuario=None) | Q(usuario_id=1)
     )
+    jogadores = carreira.carreira_times_jogadores.all().order_by('jogador')
 
     context = {
         'carreira': carreira,
         'temporadas': temporadas,
         'campeonatos': campeonatos_combinados,
-        'ativo': 'estatisticas'
+        'ativo': 'estatisticas',
+        'jogadores': jogadores
     }
     return render(request, 'carreira/estatisticas.html', context)
 
@@ -365,14 +367,14 @@ def pesquisar_treinadores(request):
     query = request.GET.get('nome_time', '')
     if query:
         treinador = Treinador.objects.filter(nome__icontains=query)
-        resultados = [{'id': treinador.id, 'nome': treinador.nome} for treinador in treinador]
+        resultados = [{'id': treinador.id, 'nome': treinador.nome, 'foto': treinador.foto.url} for treinador in treinador]
     else:
         resultados = []
     return JsonResponse(resultados, safe=False)
 
 @login_required
-def detalhes_jogador(request, jogador_id:int):
-    return redirect('jogadores', 1)
+def detalhes_jogador(request, carreira_id:int, jogador_id:int):
+    return redirect('jogadores', carreira_id)
     ...
 
 @login_required

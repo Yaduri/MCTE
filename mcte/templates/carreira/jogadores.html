@@ -23,7 +23,7 @@
         {% for carr_jog in carr %}
         <div class="col-12 col-md-6 col-lg-4 mb-3">
             <!-- Card do Jogador -->
-            <div class="card border-0 shadow-sm" onclick="window.location.href=`{% url 'detalhes_jogador' carr_jog.jogador.id %}`" style="cursor: pointer;">
+            <div class="card border-0 shadow-sm" onclick="window.location.href=`{% url 'detalhes_jogador' carreira.id carr_jog.jogador.id %}`" style="cursor: pointer;">
                 <div class="card-body p-3">
                     <!-- Layout flex para imagem e texto -->
                     <div class="d-flex align-items-center">
