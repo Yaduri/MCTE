@@ -1,4 +1,5 @@
 #from . import fifa
+import json
 from django.db.models import Q
 from itertools import chain
 from django.contrib.auth.decorators import login_required
@@ -9,8 +10,29 @@ from django.template import loader
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, get_object_or_404
 
-from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time, CarreiraTimeJogador
+from django.db.models import Case, When, IntegerField
+
+ordem_posicoes = Case(
+    When(jogador__posicao="GL", then=11),
+    When(jogador__posicao="LD", then=10),
+    When(jogador__posicao="ZAG", then=9),
+    When(jogador__posicao="LE", then=8),
+    When(jogador__posicao="VOL", then=7),
+    When(jogador__posicao="MC", then=6),
+    When(jogador__posicao="MD", then=5),
+    When(jogador__posicao="ME", then=4),
+    When(jogador__posicao="MEI", then=3),
+    When(jogador__posicao="PD", then=2),
+    When(jogador__posicao="PE", then=1),
+    When(jogador__posicao="ATA", then=0),
+    
+    output_field=IntegerField(),
+)
+
+from .models import Campeonato, Treinador, Jogador, Carreira, Estatistica, Temporada, Time, CarreiraTimeJogador, CarreiraCampeonato
 #from .forms import *
+
+
 
 def render(request, nome_template: str, contexto={}):
     template = loader.get_template(nome_template)
@@ -92,7 +114,7 @@ def adicionar_temporada(request, id):
             messages.success(request, 'Temporada adicionada com sucesso!')
         else:
             messages.error(request, 'O nome da temporada é obrigatório.')
-    return redirect('minha_carreira', id=carreira.id)
+    return redirect('estatisticas', carreira_id=carreira.id)
 
 @login_required
 def adicionar_campeonato(request, carreira_id):
@@ -100,6 +122,8 @@ def adicionar_campeonato(request, carreira_id):
         nome = request.POST.get('nome')
         logo = request.FILES.get('logo')
         campeonato = Campeonato.objects.create(nome=nome, logo=logo, usuario=request.user)
+        carreira = Carreira.objects.get(pk=carreira)
+        carreira_campeonato = CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=True)
         return redirect('estatisticas', carreira_id)
     return render(request, 'adicionar_campeonato.html')
 
@@ -117,7 +141,13 @@ def criar_carreira(request):
             jogadores = Jogador.objects.filter(time=time.nome)
             for jogador in jogadores:
                 CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
+            
             Temporada.objects.create(carreira=carreira, data='24/25')
+            
+            campeonatos_combinados = Campeonato.objects.filter(Q(usuario=None) | Q(usuario_id=request.user.id))
+            for camp in campeonatos_combinados:
+                CarreiraCampeonato.objects.create(carreira=carreira, campeonato=camp, ativo=False)
+            
             messages.success(request, "Carreira criada com sucesso!")
             return redirect('selecionar_carreira')
         except:
@@ -165,8 +195,8 @@ def minha_carreira(request, id=0):
     if id != 0:
         carreira = get_object_or_404(Carreira, pk=id, usuario=request.user)
         temporadas = Temporada.objects.filter(carreira=carreira)
-        jogadores = Jogador.objects.filter(usuario=request.user)
-        estatisticas = Estatistica.objects.filter(carreira=carreira, jogador__in=jogadores)
+        jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
+        estatisticas = Estatistica.objects.filter(carreira_time_jogador__in=jogadores_atuais)
         
         ativo = 'minha carreira'
         context = {'carreira': carreira, 'temporadas': temporadas, 'estatisticas': estatisticas, 'ativo': ativo}
@@ -174,9 +204,8 @@ def minha_carreira(request, id=0):
 
 @login_required
 def jogadores(request, carreira_id:int):
-    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=carreira_id, time_atual=True)
+    carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira_id=carreira_id, time_atual=True).order_by('-titular', ordem_posicoes)
     carreira = get_object_or_404(Carreira, pk=carreira_id)
-        
     ativo = 'jogadores'
     return render(request, 'carreira/jogadores.html', {'ativo': ativo, 'carr': carreiraTimeJogador, 'carreira': carreira})
 
@@ -210,62 +239,100 @@ def contratar_jogador_existente(request):
         messages.success(request, f"{jogador.nome} contratado!")
         return redirect('jogadores', carreira_id)
     except Exception as err:
-                messages.error(request, f"Erro ao contratar!")
-                return redirect('jogadores', carreira_id)
+        messages.error(request, f"Erro ao contratar!")
+        return redirect('jogadores', carreira_id)
     
 @login_required
 def contratar_jogador_novo(request):
-    ...
+    carreira_id = int(request.GET['carreira_id'])
+    nome = str(request.POST['nome'])
+    posicao = str(request.POST['posicao'])
+    carreira = Carreira.objects.get(pk=carreira_id)
+    time = carreira.time_atual
+    
+    try:
+        jogador = Jogador(nome=nome, posicao=posicao, time=carreira.time_atual.nome, criado=True, usuario=request.user)
+        jogador.save()
+        
+        car_tim_jog = CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
+        car_tim_jog.save()
+        messages.success(request, f"{jogador.nome} contratado!")
+        return redirect('jogadores', carreira_id)
+    except Exception as err:
+        messages.error(request, f"Erro ao contratar!")
+        return redirect('jogadores', carreira_id)
 
 @login_required
 def estatisticas(request, carreira_id: int):
     carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
-    temporadas = Temporada.objects.filter(carreira=carreira).prefetch_related('estatisticas__jogador')
-    #campeonatos = Campeonato.objects.filter(usuario=None)
-    #campeonatos2 = Campeonato.objects.filter(usuario=request.user)
-    #campeonatos_combinados = chain(campeonatos, campeonatos2)
-
+    temporadas = Temporada.objects.filter(carreira=carreira).prefetch_related('estatisticas__carreira_time_jogador')
+    carreira_campeonato = CarreiraCampeonato.objects.filter(carreira=carreira, ativo=True)
+    campeonatos = []
+    for camp in carreira_campeonato:
+        campeonatos.append(camp.campeonato)
     campeonatos_combinados = Campeonato.objects.filter(
         Q(usuario=None) | Q(usuario_id=request.user.id)
     )
-    jogadores = carreira.carreira_times_jogadores.all().order_by('jogador')
+    jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
+    estatisticas = []
+    for jogador in jogadores_atuais:
+        estatisticas += list(jogador.estatisticas.all())
 
     context = {
         'carreira': carreira,
         'temporadas': temporadas,
-        'campeonatos': campeonatos_combinados,
+        'campeonatos': campeonatos,
         'ativo': 'estatisticas',
-        'jogadores': jogadores
+        'jogadores': jogadores_atuais,
+        'estatisticas': estatisticas
     }
+    
     return render(request, 'carreira/estatisticas.html', context)
 
 @login_required
 def adicionar_estatistica(request, carreira_id):
     if request.method == "POST":
-        carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
-        jogador_id = request.POST.get("jogador_id")
+        #carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
+        jogador_id = int(request.POST.get("jogador_id"))
         campeonato_id = request.POST.get("campeonato_id")
         temporada_id = request.POST.get("temporada_id")
         jogos = request.POST.get("jogos")
         gols = request.POST.get("gols")
         assistencias = request.POST.get("assistencias")
+        
 
         try:
-            jogador = Jogador.objects.get(pk=jogador_id)
+            #car_tim_jog = carreira.carreira_times_jogadores.get(jogador_id=jogador_id)
+            carreira_time_jogador = CarreiraTimeJogador.objects.filter(carreira_id=carreira_id, jogador_id=jogador_id, time_atual=True
+        ).first()
             campeonato = Campeonato.objects.get(pk=campeonato_id)
             temporada = Temporada.objects.get(pk=temporada_id)
-            Estatistica.objects.create(
-                carreira=carreira,
-                jogador=jogador,
+            estatistica = Estatistica.objects.create(
+                carreira_time_jogador=carreira_time_jogador,
                 campeonato=campeonato,
                 temporada=temporada,
                 jogos=jogos,
                 gols=gols,
                 assistencias=assistencias,
             )
-            messages.success(request, "Estatística adicionada com sucesso!")
+            
+            return JsonResponse({
+                'id': estatistica.id,
+                'jogador': carreira_time_jogador.jogador.nome,
+                "jogador_foto": carreira_time_jogador.jogador.foto.url if carreira_time_jogador.jogador.foto else None,
+                "temporada": temporada.data,
+                "temporada_id": temporada.id,
+                "campeonato": campeonato.nome,
+                "campeonato_logo": campeonato.logo.url if campeonato.logo else None,
+                "jogos": estatistica.jogos,
+                "gols": estatistica.gols,
+                "assistencias": estatistica.assistencias
+            })
+        
+            #messages.success(request, "Estatística adicionada com sucesso!")
         except Exception as e:
-            messages.error(request, f"Erro ao adicionar estatística: {e}")
+            #messages.error(request, f"Erro ao adicionar estatística: {e}")
+            return JsonResponse({"error": "Requisição inválida"}, status=400)
 
     return redirect("estatisticas", carreira_id=carreira_id)
 
@@ -273,7 +340,7 @@ def adicionar_estatistica(request, carreira_id):
 def excluir_estatistica(request, estatistica_id):
     estatistica = get_object_or_404(Estatistica, id=estatistica_id)
     estatistica.delete()
-    return redirect('estatisticas', carreira_id=estatistica.carreira.id)
+    return redirect('estatisticas', carreira_id=estatistica.carreira_time_jogador.carreira.id)
 
 @login_required
 def editar_estatistica(request, estatistica_id):
@@ -286,18 +353,21 @@ def editar_estatistica(request, estatistica_id):
         estatistica.gols = gols
         estatistica.assistencias = assistencias
         estatistica.save()
-    return redirect('estatisticas', carreira_id=estatistica.carreira.id)
+    return redirect('estatisticas', carreira_id=estatistica.carreira_time_jogador.carreira.id)
 
 @login_required
 def estatisticas_temporada(request, carreira_id):
-    temporada = request.GET.get('temporada')
-    estatisticas = Estatistica.objects.filter(carreira_id=carreira_id, temporada__data=temporada)
+    carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
+    jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
+    temporada_id = int(request.GET['temporada'])
+    temporada = Temporada.objects.get(pk=temporada_id)
+    estatisticas = Estatistica.objects.filter(carreira_time_jogador__in=jogadores_atuais, temporada=temporada)
     
     # Criando um dicionário para armazenar as estatísticas por jogador
     jogadores_estatisticas = {}
 
     for estatistica in estatisticas:
-        jogador = estatistica.jogador
+        jogador = estatistica.carreira_time_jogador.jogador
         if jogador not in jogadores_estatisticas:
             jogadores_estatisticas[jogador] = {
                 'jogos': 0,
@@ -331,6 +401,7 @@ def estatisticas_temporada(request, carreira_id):
     estatisticas_data = [
         {
             'jogador': jogador.nome,
+            'posicao': jogador.posicao,
             'foto': dados['foto'],
             'jogos': dados['jogos'],
             'gols': dados['gols'],
@@ -386,6 +457,53 @@ def pesquisar_treinadores(request):
 def detalhes_jogador(request, carreira_id:int, jogador_id:int):
     return redirect('jogadores', carreira_id)
     ...
+    
+@login_required
+def campeonatos(request, carreira_id:int):
+    carreira = Carreira.objects.get(pk=carreira_id)
+    campeonatos = CarreiraCampeonato.objects.filter(carreira=carreira).order_by('campeonato')
+    ativo = 'campeonatos'
+    contexto = {
+        'ativo': ativo,
+        'carreira': carreira,
+        'campeonatos': campeonatos,
+    }
+    return render(request, 'carreira/campeonatos.html', contexto)
+
+@login_required
+def toggle_campeonato_status(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            campeonato_id = int(request.GET['campeonato_id'])
+            campeonato = Campeonato.objects.get(pk=campeonato_id)
+            carreira_id = int(request.GET['carreira_id'])
+            carreira = Carreira.objects.get(pk=carreira_id)
+            campeonato = CarreiraCampeonato.objects.get(carreira=carreira, campeonato=campeonato)
+            campeonato.ativo = data.get("ativo", False)
+            campeonato.save()
+            return JsonResponse({"sucesso": True, "ativo": campeonato.ativo})
+        except CarreiraCampeonato.DoesNotExist:
+            return JsonResponse({"sucesso": False, "erro": "Campeonato não encontrado."}, status=404)
+    return JsonResponse({"sucesso": False, "erro": "Método inválido."}, status=400)
+
+@login_required
+def toggle_jogador_titular(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            carr_jog_id = int(request.GET['carr_jog_id'])
+            car_jog = CarreiraTimeJogador.objects.get(pk=carr_jog_id)
+            #carreira_id = int(request.GET['carreira_id'])
+            #carreira = Carreira.objects.get(pk=carreira_id)
+            
+            car_jog.titular = data.get("titular", False)
+            car_jog.save()
+            return JsonResponse({"sucesso": True, "titular": car_jog.titular})
+        except CarreiraCampeonato.DoesNotExist:
+            return JsonResponse({"sucesso": False, "erro": "Campeonato não encontrado."}, status=404)
+    return JsonResponse({"sucesso": False, "erro": "Método inválido."}, status=400)
+
 
 @login_required
 def logout_view(request):

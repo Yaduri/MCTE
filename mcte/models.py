@@ -76,6 +76,7 @@ class CarreiraTimeJogador(models.Model):
     time = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
     jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="carreira_times_jogadores")
     time_atual = models.BooleanField(default=True)
+    titular = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("carreira", "time", "jogador")
@@ -96,6 +97,11 @@ class Campeonato(models.Model):
     
     def __str__(self):
         return self.nome
+
+class CarreiraCampeonato(models.Model):
+    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="carreira_campeonatos")
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name="carreira_campeonatos")
+    ativo = models.BooleanField(default=True)
     
     
 class Temporada(models.Model):
@@ -111,10 +117,12 @@ class Estatistica(models.Model):
     jogos = models.IntegerField('Quantidade de Jogos', validators=[MinValueValidator(0)], default=0)
     gols = models.IntegerField('Quantidade de Gols', validators=[MinValueValidator(0)], default=0)
     assistencias = models.IntegerField('Quantidade de Assistências', validators=[MinValueValidator(0)], default=0)
-    jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="estatisticas")
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name="estatisticas")
-    carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="estatisticas")
     temporada = models.ForeignKey(Temporada, on_delete=models.CASCADE, related_name="estatisticas")
+    carreira_time_jogador = models.ForeignKey(CarreiraTimeJogador, on_delete=models.CASCADE, related_name="estatisticas", default=0)
+    #jogador = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name="estatisticas")
+    #carreira = models.ForeignKey(Carreira, on_delete=models.CASCADE, related_name="estatisticas")
+    
     
     def total_participacoes(self):
         return self.gol + self.assistencia

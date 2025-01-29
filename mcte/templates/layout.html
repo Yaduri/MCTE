@@ -74,11 +74,7 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                            {% if ativo == 'carreiras' %}
-                            <a class="nav-link active" href="{% url 'index' %}">Carreiras</a>
-                            {% else %}
-                            <a class="nav-link" href="{% url 'index' %}">Carreiras</a>
-                            {% endif %}
+                            <a class="nav-link {% if ativo == 'carreiras' %}active{% endif %}" href="{% url 'index' %}">Carreiras</a>
                         </li>
                         {% if carreira %}
                         <li class="nav-item">
@@ -100,6 +96,13 @@
                             <a class="nav-link active" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
                             {% else %}
                             <a class="nav-link" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            {% if ativo == 'campeonatos' %}
+                            <a class="nav-link active" href="{% url 'campeonatos' carreira.id %}">Competições</a>
+                            {% else %}
+                            <a class="nav-link" href="{% url 'campeonatos' carreira.id %}">Competições</a>
                             {% endif %}
                         </li>
                         {% endif %}

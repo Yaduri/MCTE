@@ -1,10 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block title %}
+
 {{ carreira.nome }} - Jogadores
 {% endblock %}
 
 {% block time %}
+
 {{ carreira.treinador.nome }}
 {% endblock %}
 
@@ -23,19 +25,31 @@
         {% for carr_jog in carr %}
         <div class="col-12 col-md-6 col-lg-4 mb-3">
             <!-- Card do Jogador -->
-            <div class="card border-0 shadow-sm" onclick="window.location.href=`{% url 'detalhes_jogador' carreira.id carr_jog.jogador.id %}`" style="cursor: pointer;">
+            <div class="card border-0 shadow-sm" style="cursor: pointer;">
                 <div class="card-body p-3">
+                    {% load static %}
                     <!-- Layout flex para imagem e texto -->
                     <div class="d-flex align-items-center">
                         <!-- Imagem e nome -->
                         {% if carr_jog.jogador.foto %}
                         <img src="{{ carr_jog.jogador.foto.url }}" alt="{{ carr_jog.jogador.nome }}" style="width: 40px; height: 50px; object-fit: cover; margin-right: 10px;">
+                        {% else %}
+                        <img src="{% static 'img/default-player.jpg' %}" alt="{{ carr_jog.jogador.nome }}" style="width: 40px; height: 50px; object-fit: cover; margin-right: 10px;">
                         {% endif %}
                         <div>
-                            <h5 class="card-title mb-1">{{ carr_jog.jogador.nome }}</h5>
-                            <p class="text-muted mb-0">{{ carr_jog.jogador.posicao }}</p>
+                            <h5 class="card-title mb-1">
+                                {{ carr_jog.jogador.nome }}
+                            </h5>
+                            <p class="text-muted mb-0">
+                                {{ carr_jog.jogador.posicao }}
+                            </p>
                         </div>
                     </div>
+                    <div class="mt-2">
+                        <label for="jogador_titular" class="form-label">Titular</label>
+                        <input type="checkbox" id="jogador_titular" class="form-check-input toggle-titular" data-id="{{ carr_jog.id }}" {% if carr_jog.titular %}checked{% endif %}>
+                    </div>
+                    
                     <!-- Botão de demissão -->
                     <form method="POST" action="{% url 'demitir_jogador' carr_jog.jogador.id carreira.id %}" class="mt-2">
                         {% csrf_token %}
@@ -90,7 +104,8 @@
 
                     <!-- Aba Criar Novo -->
                     <div class="tab-pane fade" id="criar" role="tabpanel" aria-labelledby="criar-tab">
-                        <form id="criarJogadorForm" method="POST">
+                        <form id="criarJogadorForm" method="POST" action="{% url 'contratar_jogador_novo' %}?carreira_id={{ carreira.id }}">
+                            {% csrf_token %}
                             <div class="mb-3">
                                 <label for="nomeJogador" class="form-label">Nome do Jogador</label>
                                 <input type="text" class="form-control" id="nomeJogador" name="nome" placeholder="Digite o nome do jogador" required>
@@ -112,6 +127,10 @@
                                     <option value="ATA">Atacante</option>
                                     <option value="PE">Ponta Direita</option>
                                 </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="jogador_foto" class="form-label">Foto 140x180 (Opcional)</label>
+                                <input type="file" class="form-control" id="jogador_foto" name="foto" />
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-outline-success">Salvar Jogador</button>
@@ -154,24 +173,24 @@
     function selecionarJogador(id) {
         const url = `{% url 'contratar_jogador_existente' %}`;
         fetch(url + `?jogador_id=${id}&carreira_id={{ carreira.id }}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}', // Inclua o token CSRF para autenticação
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                // Redirecionar após o sucesso
-                window.location.href = `{% url 'jogadores' carreira.id %}`;
-            } else {
-                alert('Erro ao contratar jogador. Por favor, tente novamente.');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Ocorreu um erro ao processar sua solicitação.');
-        });
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Inclua o token CSRF para autenticação
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirecionar após o sucesso
+                    window.location.href = `{% url 'jogadores' carreira.id %}`;
+                } else {
+                    alert('Erro ao contratar jogador. Por favor, tente novamente.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao processar sua solicitação.');
+            });
     }
 
     // Evento de pesquisa ao digitar
@@ -179,5 +198,32 @@
         pesquisarJogadores(this.value);
     });
 
+    document.querySelectorAll('.toggle-titular').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            let carr_jog_id = this.dataset.id;
+            let status = this.checked;
+            var url = `{% url 'toggle_jogador_titular' %}`;
+            url = url + `?carr_jog_id=${carr_jog_id}&carreira_id={{carreira.id}}`
+            fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({
+                        titular: status
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        console.log("Status do campeonato atualizado!");
+                    } else {
+                        console.error("Erro ao atualizar status.");
+                    }
+                })
+                .catch(error => console.error("Erro na requisição:", error));
+        });
+    });
 </script>
 {% endblock %}

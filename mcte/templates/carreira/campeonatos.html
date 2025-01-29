@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+{{ carreira.nome }} - Campeonatos
+{% endblock %}
+
+{% block time %}
+
+{{ carreira.treinador }}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">
+        {{ carreira.nome }} - Campeonatos
+    </h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Logo</th>
+                    <th>Nome</th>
+                    <th class="text-center">Ativo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campeonato in campeonatos %}
+                <tr>
+                    <!-- Logo do Campeonato -->
+                    <td>
+                        {% if campeonato.campeonato.logo %}
+                        <img src="{{ campeonato.campeonato.logo.url }}" class="me-2" style="width: 40px; height: 40px; object-fit: contain;" alt="{{ campeonato.campeonato.nome }}">
+                        {% else %}
+                        <img src="{% static 'img/default-league.png' %}" class="me-2" style="width: 40px; height: 40px; object-fit: contain;" alt="Logo padrão">
+                        {% endif %}
+                    </td>
+
+                    <!-- Nome do Campeonato -->
+                    <td>
+                        {{ campeonato.campeonato.nome }}
+                    </td>
+
+                    <!-- Checkbox para indicar se está ativo -->
+                    <td class="text-center">
+                        <div class="form-check d-flex justify-content-center">
+                            <input type="checkbox" class="form-check-input toggle-campeonato" data-id="{{ campeonato.campeonato.id }}" {% if campeonato.ativo %}checked{% endif %}>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">Nenhum campeonato encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    document.querySelectorAll('.toggle-campeonato').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            let campeonatoId = this.dataset.id;
+            let status = this.checked;
+            var url = `{% url 'toggle_campeonato_status' %}`;
+            url = url + `?campeonato_id=${campeonatoId}&carreira_id={{carreira.id}}`
+            fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({
+                        ativo: status
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        console.log("Status do campeonato atualizado!");
+                    } else {
+                        console.error("Erro ao atualizar status.");
+                    }
+                })
+                .catch(error => console.error("Erro na requisição:", error));
+        });
+    });
+</script>
+{% endblock %}
