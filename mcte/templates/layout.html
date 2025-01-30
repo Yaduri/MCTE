@@ -78,44 +78,24 @@
                         </li>
                         {% if carreira %}
                         <li class="nav-item">
-                            {% if ativo == 'minha carreira' %}
-                            <a class="nav-link active" href="{% url 'minha_carreira' carreira.id %}">Minha Carreira</a>
-                            {% else %}
-                            <a class="nav-link" href="{% url 'minha_carreira' carreira.id %}">Minha Carreira</a>
-                            {% endif %}
+                            <a class="nav-link {% if ativo == 'minha carreira' %}active{% endif %}" href="{% url 'minha_carreira' carreira.id %}">Minha Carreira</a>
                         </li>
                         <li class="nav-item">
-                            {% if ativo == 'estatisticas' %}
-                            <a class="nav-link active" href="{% url 'estatisticas' carreira.id %}">Estatísticas</a>
-                            {% else %}
-                            <a class="nav-link" href="{% url 'estatisticas' carreira.id %}">Estatísticas</a>
-                            {% endif %}
+                            <a class="nav-link {% if ativo == 'estatisticas' %}active{% endif %}" href="{% url 'estatisticas' carreira.id %}">Estatísticas</a>
                         </li>
                         <li class="nav-item">
-                            {% if ativo == 'jogadores' %}
-                            <a class="nav-link active" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
-                            {% else %}
-                            <a class="nav-link" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
-                            {% endif %}
+                            <a class="nav-link {% if ativo == 'jogadores' %}active{% endif %}" href="{% url 'jogadores' carreira.id %}">Jogadores</a>
                         </li>
                         <li class="nav-item">
-                            {% if ativo == 'campeonatos' %}
-                            <a class="nav-link active" href="{% url 'campeonatos' carreira.id %}">Competições</a>
-                            {% else %}
-                            <a class="nav-link" href="{% url 'campeonatos' carreira.id %}">Competições</a>
-                            {% endif %}
+                            <a class="nav-link {% if ativo == 'campeonatos' %}active{% endif %}" href="{% url 'campeonatos' carreira.id %}">Competições</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if ativo == 'trocar time' %}active{% endif %}" href="{% url 'trocar_time' carreira.id %}">Trocar Time</a>
                         </li>
                         {% endif %}
-                        {% if ativo == 'meu perfil' %}
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'meu_perfil' %}">Meu Perfil</a>
+                            <a class="nav-link {% if ativo == 'meu perfil' %}active{% endif %}" href="{% url 'meu_perfil' %}">Meu Perfil</a>
                         </li>
-                        {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'meu_perfil' %}">Meu Perfil</a>
-                        </li>
-                        {% endif %}
-
                         {% endif %}
                     </ul>
                     <div class="d-flex">

@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+{{ carreira.nome }}
+{% endblock %}
+
+{% block time %}
+{{carreira.treinador}}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="container my-5">
+    <h1 class="mb-4 text-center">Trocar de Time</h1>
+
+    <!-- Formulário para criar uma nova carreira -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <form method="POST" action="{% url 'trocar_time' carreira.id %}">
+                        {% csrf_token %}
+                        <h4>Time atual: {{carreira.time_atual.nome}}</h4>
+                        <!-- Campo Seleção de Time -->
+                        <div class="mb-3">
+                            <label class="form-label" for="time_selec">Time novo:</label>
+                            <input type="hidden" name="time_id" id="time_id">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div id="div_time_logo">
+                                </div>
+                                <label class="form-label mb-0" id="time_selec">Nenhum Time Selecionado</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTimeModal">
+                                    <i class="bi bi-plus-circle"></i> Escolher
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Botão de Salvar -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Trocar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" aria-labelledby="addTimeModalLabel" aria-hidden="true" id="addTimeModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pesquisar Time</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-pane fade show active" id="selecionar" role="tabpanel" aria-labelledby="selecionar-tab">
+                    <form id="selecionarTime">
+                        <div class="mb-3">
+                            <input type="text" id="pesquisarTime" class="form-control" placeholder="Pesquisar time..." autocomplete="off">
+                        </div>
+                        <ul id="resultadoPesquisa" class="list-group">
+                            <!-- Resultados da pesquisa -->
+                        </ul>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+<script>
+    function pesquisarTimes(query) {
+        
+        if (query.length < 1) {
+            document.getElementById('resultadoPesquisa').innerHTML = '';
+            return;
+        }
+        const url = `{% url 'pesquisar_times' %}`
+        fetch(url + `?nome_time=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const lista = document.getElementById('resultadoPesquisa');
+                lista.innerHTML = '';
+                data.forEach(time => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item carreira-card d-flex align-items-center';
+                    
+                    const logo = document.createElement('img');
+                    if (time.logo === ''){
+                        logo.src = `{% static 'img/default-player.jpg' %}`
+                    }else {
+                        logo.src = time.logo; // URL da logo do time
+                    }
+                    
+                    logo.alt = `Logo do ${time.nome}`; // Texto alternativo
+                    logo.style.width = '40px'; // Define o tamanho da imagem
+                    logo.style.height = '40px'; // Define o tamanho da imagem
+                    logo.style.marginRight = '10px'; // Espaço entre a logo e o texto
+                    //logo.style.borderRadius = '50%'; // Deixa a logo com bordas arredondadas
+    
+                    item.onclick = () => selecionarTime(time.id, time.nome, logo.src);
+    
+                    const texto = document.createTextNode(time.nome);
+    
+                    // Adiciona a logo e o texto ao item da lista
+                    item.appendChild(logo);
+                    item.appendChild(texto);
+    
+                    // Adiciona o item à lista
+                    lista.appendChild(item);
+                });
+            });
+    }
+    
+    function selecionarTime(time_id, nome_time, url_logo) {
+        // Atualizar o conteúdo do elemento com ID "time_selec"
+        document.getElementById('time_selec').textContent = nome_time;
+        document.getElementById('time_id').value = time_id;
+        const item = document.getElementById('div_time_logo');
+        item.innerHTML = '';
+        const logo = document.createElement('img');
+        logo.src = url_logo; 
+        logo.alt = `Logo do ${nome_time}`; 
+        logo.style.width = '40px'; 
+        logo.style.height = '40px'; 
+        logo.style.marginRight = '10px';
+        item.appendChild(logo);
+        
+        // Fechar o modal com ID "addTimeModal"
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addTimeModal'));
+        modal.hide();
+    }
+    
+    document.getElementById('pesquisarTime').addEventListener('input', function () {
+        pesquisarTimes(this.value);
+    });
+</script>
+{% endblock %}

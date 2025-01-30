@@ -55,7 +55,7 @@
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="novaTemporada" class="form-label">Ano</label>
-                            <input type="text" class="form-control" id="novaTemporada" name="novaTemporada" placeholder="Ex: 24/25" required maxlength="5" pattern="\d{2}/\d{2}" title="O formato deve ser nn/nn, onde n é um número (exemplo: 24/25)" oninput="formatarTemporada(this)" onkeydown="permitirApagarBarra(event)">
+                            <input type="text" autocomplete="off" class="form-control" id="novaTemporada" name="novaTemporada" placeholder="Ex: 24/25" required maxlength="5" pattern="\d{2}/\d{2}" title="O formato deve ser nn/nn, onde n é um número (exemplo: 24/25)" oninput="formatarTemporada(this)" onkeydown="permitirApagarBarra(event)">
                         </div>
 
                         <div class="d-grid">
@@ -145,6 +145,7 @@
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-light">
                     <tr>
+                        <th>Time</th>
                         <th>Jogador</th>
                         <th>Temporada</th>
                         <th>Campeonato</th>
@@ -158,6 +159,13 @@
                     {% for estatistica in estatisticas %}
                     <tr data-temporada="{{ estatistica.temporada.id }}">
                         <!-- Jogador -->
+                        <td>
+                            {% if estatistica.carreira_time_jogador.time.logo %}
+                            <img src="{{ estatistica.carreira_time_jogador.time.logo.url }}" alt="{{ estatistica.carreira_time_jogador.time.nome }}" style="width: 40px; height: 40px; margin-right: 10px;" />
+                            {% else %}
+                            <img src="{% static 'img/default-player.jpg' %}" alt="{{ estatistica.carreira_time_jogador.time.nome }}" style="width: 40px; height: 40px; margin-right: 10px;" />
+                            {% endif %}
+                        </td>
                         <td>
                             <div class="d-flex align-items-center">
                                 {% if estatistica.carreira_time_jogador.jogador.foto %}

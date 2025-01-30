@@ -61,7 +61,7 @@ def login_view(request):
         if user:
             login(request, user)
             return redirect('index')
-        messages.error(request, "Nome de usuário/email ou senha incorretos")
+        messages.warning(request, "Nome de usuário/email ou senha incorretos")
         return redirect('login')
     return render(request, 'auth/login.html')
 
@@ -78,7 +78,7 @@ def signup(request):
                 user.save()
                 login(request, user)
                 return redirect('index')
-        messages.error(request, "Nome de usuário ou email já cadastrado")
+        messages.warning(request, "Nome de usuário ou email já cadastrado")
         return redirect('signup')
     return render(request, 'auth/signup.html')
 
@@ -115,7 +115,7 @@ def adicionar_temporada(request, id):
             Temporada.objects.create(carreira=carreira, data=nome_temporada)
             messages.success(request, 'Temporada adicionada com sucesso!')
         else:
-            messages.error(request, 'O nome da temporada é obrigatório.')
+            messages.warning(request, 'O nome da temporada é obrigatório.')
     return redirect('estatisticas', carreira_id=carreira.id)
 
 @login_required
@@ -153,7 +153,7 @@ def criar_carreira(request):
             messages.success(request, "Carreira criada com sucesso!")
             return redirect('selecionar_carreira')
         except:
-            messages.error(request, "Ocorreu um erro ao criar a carreira. Verifique os dados e tente novamente.")
+            messages.warning(request, "Ocorreu um erro ao criar a carreira. Verifique os dados e tente novamente.")
     times = Time.objects.filter(usuario=request.user)
     times2 = Time.objects.filter(criado=False)
     treinadores = Treinador.objects.filter(usuario=request.user)
@@ -174,7 +174,7 @@ def criar_time(request):
             messages.success(request, "Time criado com sucesso!")
             return redirect('criar_carreira')
         except:
-            messages.error(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
+            messages.warning(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
 
 
 
@@ -189,7 +189,7 @@ def criar_treinador(request):
             messages.success(request, "Treinador criado com sucesso!")
             return redirect('criar_carreira')
         except:
-            messages.error(request, "Ocorreu um erro ao criar o treinador. Verifique os dados e tente novamente.")
+            messages.warning(request, "Ocorreu um erro ao criar o treinador. Verifique os dados e tente novamente.")
     
 
 @login_required
@@ -223,7 +223,7 @@ def demitir_jogador(request, jogador_id:int, carreira_id:int):
         messages.success(request, f"{carreiraTimeJogador.jogador.nome} demitido com sucesso!")
         return redirect('jogadores', carreira_id)
     except Exception as err:
-        messages.error(request, f"Erro ao demitir {carreiraTimeJogador.jogador.nome}!")
+        messages.warning(request, f"Erro ao demitir {carreiraTimeJogador.jogador.nome}!")
         return redirect('jogadores', carreira_id)
 
 @login_required
@@ -234,17 +234,17 @@ def contratar_jogador_existente(request):
     time = carreira.time_atual
     jogador = Jogador.objects.get(pk=jogador_id)
     try:
-        carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira=carreira, jogador=jogador)
+        carreiraTimeJogador = CarreiraTimeJogador.objects.filter(carreira=carreira, jogador=jogador, time=time).first()
         if not carreiraTimeJogador:
             carreiraTimeJogador = CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
         else:
-            carreiraTimeJogador = CarreiraTimeJogador.objects.get(carreira=carreira, jogador=jogador)
+            #carreiraTimeJogador = CarreiraTimeJogador.objects.get(carreira=carreira, jogador=jogador)
             carreiraTimeJogador.time_atual = True
         carreiraTimeJogador.save()
         messages.success(request, f"{jogador.nome} contratado!")
         return redirect('jogadores', carreira_id)
     except Exception as err:
-        messages.error(request, f"Erro ao contratar!")
+        messages.warning(request, f"Erro ao contratar!")
         return redirect('jogadores', carreira_id)
     
 @login_required
@@ -264,7 +264,7 @@ def contratar_jogador_novo(request):
         messages.success(request, f"{jogador.nome} contratado!")
         return redirect('jogadores', carreira_id)
     except Exception as err:
-        messages.error(request, f"Erro ao contratar!")
+        messages.warning(request, f"Erro ao contratar!")
         return redirect('jogadores', carreira_id)
 
 @login_required
@@ -275,9 +275,9 @@ def estatisticas(request, carreira_id: int):
     campeonatos = []
     for camp in carreira_campeonato:
         campeonatos.append(camp.campeonato)
-    campeonatos_combinados = Campeonato.objects.filter(
+    """campeonatos_combinados = Campeonato.objects.filter(
         Q(usuario=None) | Q(usuario_id=request.user.id)
-    )
+    )"""
     jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
     estatisticas = []
     for jogador in jogadores_atuais:
@@ -336,7 +336,7 @@ def adicionar_estatistica(request, carreira_id):
         
             #messages.success(request, "Estatística adicionada com sucesso!")
         except Exception as e:
-            #messages.error(request, f"Erro ao adicionar estatística: {e}")
+            #messages.warning(request, f"Erro ao adicionar estatística: {e}")
             return JsonResponse({"error": "Requisição inválida"}, status=400)
 
     return redirect("estatisticas", carreira_id=carreira_id)
@@ -363,7 +363,7 @@ def editar_estatistica(request, estatistica_id):
 @login_required
 def estatisticas_temporada(request, carreira_id):
     carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
-    jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
+    jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira).order_by('-titular', ordem_posicoes)
     temporada_id = int(request.GET['temporada'])
     temporada = Temporada.objects.get(pk=temporada_id)
     estatisticas = Estatistica.objects.filter(carreira_time_jogador__in=jogadores_atuais, temporada=temporada)
@@ -379,6 +379,7 @@ def estatisticas_temporada(request, carreira_id):
                 'gols': 0,
                 'assistencias': 0,
                 'foto': jogador.foto.url if jogador.foto else None,
+                'time_logo': estatistica.carreira_time_jogador.time.logo.url if estatistica.carreira_time_jogador.time.logo else None,
                 'competicoes': []
             }
         
@@ -408,10 +409,11 @@ def estatisticas_temporada(request, carreira_id):
             'jogador': jogador.nome,
             'posicao': jogador.posicao,
             'foto': dados['foto'],
+            'time_logo': dados['time_logo'],
             'jogos': dados['jogos'],
             'gols': dados['gols'],
             'assistencias': dados['assistencias'],
-            'competicoes': dados['competicoes']
+            'competicoes': dados['competicoes'],
         }
         for jogador, dados in jogadores_estatisticas.items()
     ]
@@ -430,7 +432,7 @@ def pesquisar_jogadores(request):
     
     if query:
         # Filtrar jogadores com base na busca, excluindo os que já estão no time
-        jogadores = Jogador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id)).exclude(id__in=jogadores_no_time)
+        jogadores = Jogador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id)).exclude(id__in=jogadores_no_time)[:7]
         resultados = [{'id': jogador.id, 'nome': jogador.nome, 'foto': jogador.foto.url if jogador.foto else ''} for jogador in jogadores]
     else:
         resultados = []
@@ -515,8 +517,29 @@ def logout_view(request):
     logout(request)
     return redirect('index')
 
+@login_required
+def trocar_time(request, carreira_id:int):
+    carreira = Carreira.objects.get(pk=carreira_id)
+    if request.POST:
+        if request.POST['time_id'] == '':
+            messages.warning(request, "Escolha um time!")
+        else:
+            time_novo_id = int(request.POST['time_id'])
+            time_novo = Time.objects.get(pk=time_novo_id)
+            carreira_time_jogador = CarreiraTimeJogador.objects.filter(carreira__id=carreira_id)
+            carreira_time_jogador.update(time_atual=False)
+            carreira.time_atual = time_novo
+            carreira.save()
+    
+    contexto = {'carreira': carreira, 'ativo': 'trocar time'}
+    return render(request, 'carreira/trocar_time.html', contexto)
+    ...
 
-def salvar_imagem_local_jogador(jogador, caminho_imagem):
+#trocar_time(5,1)
+
+
+
+"""def salvar_imagem_local_jogador(jogador, caminho_imagem):
     # Verificar se o arquivo existe
     if not os.path.exists(caminho_imagem):
         #print(f"Erro: O arquivo {caminho_imagem} não existe.")
@@ -531,7 +554,7 @@ def salvar_imagem_local_jogador(jogador, caminho_imagem):
         print(err)
     return False
 
-"""nomes_jogadores = ['Chimuanya Ugochukwu', 
+nomes_jogadores = ['Chimuanya Ugochukwu', 
                    'William Smallbone',
                     'Albert Gronbaek Erlykke',
                     ]
