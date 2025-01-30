@@ -39,8 +39,8 @@ h1, h2, h3 {
     color: black;
 }
 
-.bg-dark{
-    background-color: black;
+header, footer {
+    background-color: rgb(31, 59, 31); /* Colocar a cor do header aqui */
 }
 
 main {
@@ -52,16 +52,13 @@ footer {
     position: relative;
     bottom: 0;
     width: 100%;
-    background-color: #333; /* Cor escura para o rodapé */
     color: #fff;
     padding: 20px 0;
     text-align: center;
 }
 
 /* Estilo de navegação - minimalista */
-.navbar, header {
-    background-color: #333; /* Colocar a cor do header aqui */
-}
+
 .header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
