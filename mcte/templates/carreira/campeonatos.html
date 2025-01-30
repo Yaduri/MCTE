@@ -17,7 +17,10 @@
     <h1 class="text-center mb-4">
         {{ carreira.nome }} - Campeonatos
     </h1>
-
+    <div class="text-center my-4">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adicionarCampeonatoModal"><i class="bi bi-plus-circle"></i> Novo Campeonato</button>
+    </div>
+    
     <div class="table-responsive">
         <table class="table table-striped table-hover align-middle">
             <thead class="table-light">
@@ -58,6 +61,36 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+
+<!-- Modal de Adicionar Campeonato -->
+<div class="modal fade" id="adicionarCampeonatoModal" tabindex="-1" aria-labelledby="adicionarCampeonatoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adicionarCampeonatoLabel">Adicionar Novo Campeonato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'adicionar_campeonato' carreira.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="campeonatoNome" class="form-label">Nome do Campeonato</label>
+                        <input type="text" class="form-control" id="campeonatoNome" name="nome" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="campeonatoLogo" class="form-label">Logo do Campeonato (Opcional)</label>
+                        <input type="file" class="form-control" id="campeonatoLogo" name="logo" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Campeonato</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

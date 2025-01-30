@@ -5,6 +5,7 @@ Criar Carreira
 {% endblock %}
 
 {% block content %}
+{% load static %}
 <div class="container my-5">
     <h1 class="mb-4 text-center">Criar Carreira</h1>
 
@@ -33,7 +34,9 @@ Criar Carreira
                             <label class="form-label" for="time_selec">Selecione um time:</label>
                             <input type="hidden" name="time_id" id="time_id">
                             <div class="d-flex justify-content-between align-items-center">
-                                <p class="form-label mb-0" id="time_selec">Nenhum Time Selecionado</p>
+                                <div id="div_time_logo">
+                                </div>
+                                <label class="form-label mb-0" id="time_selec">Nenhum Time Selecionado</label>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTimeModal">
                                     <i class="bi bi-plus-circle"></i> Escolher
                                 </button>
@@ -45,7 +48,9 @@ Criar Carreira
                             <label class="form-label" for="treinador_selec">Selecione um treinador:</label>
                             <input type="hidden" name="treinador_id" id="treinador_id">
                             <div class="d-flex justify-content-between align-items-center">
-                                <p class="form-label mb-0" id="treinador_selec">Nenhum Treinador Selecionado</p>
+                                <div id="div_treinador_foto">
+                                </div>
+                                <label class="form-label mb-0" id="treinador_selec">Nenhum Treinador Selecionado</label>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTreinadorModal">
                                     <i class="bi bi-plus-circle"></i> Escolher
                                 </button>
@@ -187,14 +192,19 @@ Criar Carreira
                     item.className = 'list-group-item carreira-card d-flex align-items-center';
                     
                     const logo = document.createElement('img');
-                    logo.src = time.logo; // URL da logo do time
+                    if (time.logo === ''){
+                        logo.src = `{% static 'img/default-player.jpg' %}`
+                    }else {
+                        logo.src = time.logo; // URL da logo do time
+                    }
+                    
                     logo.alt = `Logo do ${time.nome}`; // Texto alternativo
                     logo.style.width = '40px'; // Define o tamanho da imagem
                     logo.style.height = '40px'; // Define o tamanho da imagem
                     logo.style.marginRight = '10px'; // Espaço entre a logo e o texto
                     //logo.style.borderRadius = '50%'; // Deixa a logo com bordas arredondadas
 
-                    item.onclick = () => selecionarJogador(time.id, time.nome);
+                    item.onclick = () => selecionarTime(time.id, time.nome, logo.src);
 
                     const texto = document.createTextNode(time.nome);
 
@@ -208,11 +218,20 @@ Criar Carreira
             });
     }
     
-    function selecionarJogador(time_id, nome_time) {
+    function selecionarTime(time_id, nome_time, url_logo) {
         // Atualizar o conteúdo do elemento com ID "time_selec"
         document.getElementById('time_selec').textContent = nome_time;
         document.getElementById('time_id').value = time_id;
-    
+        const item = document.getElementById('div_time_logo');
+        item.innerHTML = '';
+        const logo = document.createElement('img');
+        logo.src = url_logo; 
+        logo.alt = `Logo do ${nome_time}`; 
+        logo.style.width = '40px'; 
+        logo.style.height = '40px'; 
+        logo.style.marginRight = '10px';
+        item.appendChild(logo);
+        
         // Fechar o modal com ID "addTimeModal"
         const modal = bootstrap.Modal.getInstance(document.getElementById('addTimeModal'));
         modal.hide();
@@ -229,7 +248,7 @@ Criar Carreira
             return;
         }
         const url = `{% url 'pesquisar_treinadores' %}`
-        fetch(url + `?nome_time=${query}`)
+        fetch(url + `?nome_treinador=${query}`)
             .then(response => response.json())
             .then(data => {
                 const lista = document.getElementById('resultadoPesquisa2');
@@ -240,13 +259,17 @@ Criar Carreira
                     item.className = 'list-group-item carreira-card d-flex align-items-center';
                     
                     const logo = document.createElement('img');
-                    logo.src = treinador.foto; 
+                    if (treinador.foto === ''){
+                        logo.src = `{% static 'img/default-player.jpg' %}`
+                    }else {
+                        logo.src = treinador.foto;
+                    }
                     logo.alt = `Logo do ${treinador.nome}`; 
-                    logo.style.width = '35px';
-                    logo.style.height = '40px'; 
+                    logo.style.width = '40px';
+                    logo.style.height = '50px'; 
                     logo.style.marginRight = '10px'; 
 
-                    item.onclick = () => selecionarTreinador(treinador.id, treinador.nome);
+                    item.onclick = () => selecionarTreinador(treinador.id, treinador.nome, logo.src);
 
                     const texto = document.createTextNode(treinador.nome);
 
@@ -262,10 +285,20 @@ Criar Carreira
             });
     }
     
-    function selecionarTreinador(id, nome) {
+    function selecionarTreinador(id, nome, url) {
         // Atualizar o conteúdo do elemento com ID "time_selec"
         document.getElementById('treinador_selec').textContent = nome;
         document.getElementById('treinador_id').value = id;
+
+        const item = document.getElementById('div_treinador_foto');
+        item.innerHTML = '';
+        const logo = document.createElement('img');
+        logo.src = url; 
+        logo.alt = `Foto do ${nome}`; 
+        logo.style.width = '40px'; 
+        logo.style.height = '50px'; 
+        logo.style.marginRight = '10px';
+        item.appendChild(logo);
     
         // Fechar o modal com ID "addTimeModal"
         const modal = bootstrap.Modal.getInstance(document.getElementById('addTreinadorModal'));

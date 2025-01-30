@@ -6,7 +6,7 @@ body {
     font-family: 'Verdana', sans-serif; /* Fontes mais simples e limpas */
     /*background-color: #f4f4f4;  Cor de fundo clara */
     background-color: #0e0d0d; /* Cor de fundo escura */
-    color: white;
+    color: #f8f9fa;
     background: url("/static/img/background-desktop.jpg") no-repeat center center fixed;
     background-size: cover;
 }
@@ -20,8 +20,28 @@ body {
     }
 }
 
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Fundo preto semi-transparente */
+    z-index: -1; /* Mantém no fundo */
+}
 
+h1, h2, h3 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra preta suave */
+}
 
+.modal{
+    color: black;
+}
+
+.bg-dark{
+    background-color: black;
+}
 
 main {
     flex: 1;
@@ -89,6 +109,7 @@ footer {
 }
 
 /* Modal */
+
 .modal-content {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave */

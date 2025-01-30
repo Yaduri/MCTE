@@ -152,6 +152,7 @@ from django.core.files import File
 from .models import Jogador
 from django.conf import settings
 
+import os
 def salvar_imagem_local_jogador(jogador, caminho_imagem):
     # Verificar se o arquivo existe
     if not os.path.exists(caminho_imagem):
@@ -425,5 +426,12 @@ def apagar_fotos_treinadores():
 
 #apagar_fotos_treinadores()
 #cria_tudo()
+
+
+jogador = Jogador.objects.get(nome='Kamal Deen Sulemana')
+caminho = 'C:\Users\BRUNO\Downloads\Kamal Deen Sulemana.jpeg'
+salvar_imagem_local_jogador(jogador, caminho)
+
+
 
 print('acabou')

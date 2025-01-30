@@ -14,8 +14,8 @@
 <div class="container my-5">
     <!-- Título principal com botão "Contratar" -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-dark">Jogadores</h1>
-        <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#contratarJogadorModal">
+        <h1 class="">Jogadores</h1>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#contratarJogadorModal">
             <i class="bi bi-person-plus"></i> Contratar
         </button>
     </div>
@@ -94,7 +94,7 @@
                         <form id="selecionarJogadorForm">
                             <div class="mb-3">
                                 <label for="pesquisarJogador" class="form-label">Pesquisar Jogador</label>
-                                <input type="text" id="pesquisarJogador" class="form-control" placeholder="Digite o nome do jogador">
+                                <input type="text" id="pesquisarJogador" class="form-control" placeholder="Digite o nome do jogador" autocomplete="off">
                             </div>
                             <ul id="resultadoPesquisa" class="list-group">
                                 <!-- Resultados da pesquisa aparecerão aqui -->
@@ -162,7 +162,24 @@
                 data.forEach(jogador => {
                     const item = document.createElement('li');
                     item.className = 'list-group-item carreira-card';
-                    item.textContent = jogador.nome;
+
+                    const logo = document.createElement('img');
+                    if (jogador.foto === ''){
+                        logo.src = `{% static 'img/default-player.jpg' %}`
+                    }else {
+                        logo.src = jogador.foto;
+                    }
+                    logo.alt = `Logo do ${jogador.nome}`; 
+                    logo.style.width = '40px';
+                    logo.style.height = '50px'; 
+                    logo.style.marginRight = '10px'; 
+                    
+                    const texto = document.createTextNode(jogador.nome);
+
+                    // Adiciona a logo e o texto ao item da lista
+                    item.appendChild(logo);
+                    item.appendChild(texto);
+
                     item.onclick = () => selecionarJogador(jogador.id);
                     lista.appendChild(item);
                 });

@@ -1,4 +1,6 @@
 #from . import fifa
+import os
+from django.core.files import File
 import json
 from django.db.models import Q
 from itertools import chain
@@ -124,7 +126,7 @@ def adicionar_campeonato(request, carreira_id):
         campeonato = Campeonato.objects.create(nome=nome, logo=logo, usuario=request.user)
         carreira = Carreira.objects.get(pk=carreira)
         carreira_campeonato = CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=True)
-        return redirect('estatisticas', carreira_id)
+        return redirect('campeonatos', carreira_id)
     return render(request, 'adicionar_campeonato.html')
 
 # Criar nova carreira
@@ -197,6 +199,9 @@ def minha_carreira(request, id=0):
         temporadas = Temporada.objects.filter(carreira=carreira)
         jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
         estatisticas = Estatistica.objects.filter(carreira_time_jogador__in=jogadores_atuais)
+        
+        #campeonato = Campeonato.objects.get(nome='Carabao Cup')
+        #CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=False)
         
         ativo = 'minha carreira'
         context = {'carreira': carreira, 'temporadas': temporadas, 'estatisticas': estatisticas, 'ativo': ativo}
@@ -425,8 +430,8 @@ def pesquisar_jogadores(request):
     
     if query:
         # Filtrar jogadores com base na busca, excluindo os que já estão no time
-        jogadores = Jogador.objects.filter(nome__icontains=query).exclude(id__in=jogadores_no_time)
-        resultados = [{'id': jogador.id, 'nome': jogador.nome} for jogador in jogadores]
+        jogadores = Jogador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id)).exclude(id__in=jogadores_no_time)
+        resultados = [{'id': jogador.id, 'nome': jogador.nome, 'foto': jogador.foto.url if jogador.foto else ''} for jogador in jogadores]
     else:
         resultados = []
 
@@ -437,18 +442,18 @@ def pesquisar_jogadores(request):
 def pesquisar_times(request):
     query = request.GET.get('nome_time', '')
     if query:
-        times = Time.objects.filter(nome__icontains=query)
-        resultados = [{'id': time.id, 'nome': time.nome, 'logo': time.logo.url} for time in times]
+        times = Time.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id))
+        resultados = [{'id': time.id, 'nome': time.nome, 'logo': time.logo.url if time.logo else ''} for time in times]
     else:
         resultados = []
     return JsonResponse(resultados, safe=False)
 
 @login_required
 def pesquisar_treinadores(request):
-    query = request.GET.get('nome_time', '')
+    query = request.GET.get('nome_treinador', '')
     if query:
-        treinador = Treinador.objects.filter(nome__icontains=query)
-        resultados = [{'id': treinador.id, 'nome': treinador.nome, 'foto': treinador.foto.url} for treinador in treinador]
+        treinador = Treinador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id))
+        resultados = [{'id': treinador.id, 'nome': treinador.nome, 'foto': treinador.foto.url if treinador.foto else ''} for treinador in treinador]
     else:
         resultados = []
     return JsonResponse(resultados, safe=False)
@@ -461,7 +466,7 @@ def detalhes_jogador(request, carreira_id:int, jogador_id:int):
 @login_required
 def campeonatos(request, carreira_id:int):
     carreira = Carreira.objects.get(pk=carreira_id)
-    campeonatos = CarreiraCampeonato.objects.filter(carreira=carreira).order_by('campeonato')
+    campeonatos = CarreiraCampeonato.objects.filter(carreira=carreira).order_by('-ativo','campeonato')
     ativo = 'campeonatos'
     contexto = {
         'ativo': ativo,
@@ -509,3 +514,29 @@ def toggle_jogador_titular(request):
 def logout_view(request):
     logout(request)
     return redirect('index')
+
+
+def salvar_imagem_local_jogador(jogador, caminho_imagem):
+    # Verificar se o arquivo existe
+    if not os.path.exists(caminho_imagem):
+        #print(f"Erro: O arquivo {caminho_imagem} não existe.")
+        return False
+    try:
+        # Abrir o arquivo de imagem
+        with open(caminho_imagem, 'rb') as arquivo_imagem:
+            # Salvar a imagem no campo `foto`
+            jogador.foto.save(os.path.basename(caminho_imagem), File(arquivo_imagem), save=True)
+            return True
+    except Exception as err:
+        print(err)
+    return False
+
+"""nomes_jogadores = ['Chimuanya Ugochukwu', 
+                   'William Smallbone',
+                    'Albert Gronbaek Erlykke',
+                    ]
+
+for nome_jogador in nomes_jogadores:
+    jogador = Jogador.objects.get(nome=nome_jogador)
+    caminho = f'C:/Users/BRUNO/Downloads/{nome_jogador}.jpeg'
+    salvar_imagem_local_jogador(jogador, caminho)"""
