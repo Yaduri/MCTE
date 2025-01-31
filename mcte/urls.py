@@ -17,6 +17,9 @@ urlpatterns = [
     path("carreira/<int:carreira_id>/adicionar-estatistica/", views.adicionar_estatistica, name="adicionar_estatistica"),
     path('carreira/<int:carreira_id>/estatisticas-temporada/', views.estatisticas_temporada, name='estatisticas_temporada'),
     path('carreira/<int:carreira_id>/campeonatos/', views.campeonatos, name='campeonatos'),
+    
+    path('carreira/<int:carreira_id>/deletar/', views.deletar_carreira, name='deletar_carreira'),
+    
     path('campeonatos/toggle/', views.toggle_campeonato_status, name='toggle_campeonato_status'),
     path('jogador/titular/toggle/', views.toggle_jogador_titular, name='toggle_jogador_titular'),
     

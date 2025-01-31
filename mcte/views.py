@@ -569,9 +569,17 @@ def trocar_time(request, carreira_id:int):
     contexto = {'carreira': carreira, 'ativo': 'trocar time'}
     return render(request, 'carreira/trocar_time.html', contexto)
     ...
-
-#trocar_time(5,1)
-
+   
+@login_required
+def deletar_carreira(request, carreira_id:int):
+    try:
+        carreira = Carreira.objects.get(pk=carreira_id)
+        carreira.delete()
+        messages.success(request, 'Carreira deletada!')
+        return redirect('index')
+    except Exception as err:
+        messages.warning(request, 'Erro ao deletar carreira!')
+        return redirect('trocar_time', carreira_id)
 
 
 """def salvar_imagem_local_jogador(jogador, caminho_imagem):

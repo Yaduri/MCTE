@@ -46,6 +46,36 @@
             </div>
         </div>
     </div>
+    <!-- Botão que abre o modal -->
+<div class="justify-content-center text-center my-5">
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalConfirmacao">
+        <i class="bi bi-check-lg"></i> DELETAR CARREIRA
+    </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacaoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacaoLabel">Confirmação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                Você realmente deseja deletar sua carreira?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+                <form method="POST" action="{% url 'deletar_carreira' carreira.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sim</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
 </div>
 
 <div class="modal fade" tabindex="-1" aria-labelledby="addTimeModalLabel" aria-hidden="true" id="addTimeModal">
