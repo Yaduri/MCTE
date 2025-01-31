@@ -122,10 +122,23 @@ def adicionar_temporada(request, id):
 def adicionar_campeonato(request, carreira_id):
     if request.method == "POST":
         nome = request.POST.get('nome')
-        logo = request.FILES.get('logo')
-        campeonato = Campeonato.objects.create(nome=nome, logo=logo, usuario=request.user)
+        caminho = 'static/img/default-league.png'
+        if not os.path.exists(caminho):
+            messages.warning(request, "Ocorreu um erro ao criar o campeonato. Verifique os dados e tente novamente.")
+        else:
+            campeonato = Campeonato.objects.create(nome=nome, usuario=request.user)
+            if request.FILES:
+                logo = request.FILES['logo']
+                campeonato.logo = logo
+            else:
+                with open(caminho, 'rb') as arquivo_imagem:
+                    campeonato.logo.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
+            campeonato.save()
+        #logo = request.FILES.get('logo')
+        
         carreira = Carreira.objects.get(pk=carreira)
         carreira_campeonato = CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=True)
+        carreira_campeonato.save()
         return redirect('campeonatos', carreira_id)
     return render(request, 'adicionar_campeonato.html')
 
@@ -160,21 +173,31 @@ def criar_carreira(request):
     treinadores2 = Treinador.objects.filter(criado=False)
     ativo = 'carreiras'
     return render(request, 'carreira/criar_carreira.html', {'times': times, 'times2': times2, 'treinadores': treinadores, 'treinadores2': treinadores2, 'ativo': ativo})
-
+from django.conf import settings
 
 # Criar time
 @login_required
 def criar_time(request):
     if request.method == "POST":
         nome = request.POST['nome']
-        try:
-            time = Time(nome=nome, usuario=request.user, criado=True, logo=request.FILES['logo'])
-            #time = Time(nome=nome, usuario=request.user, criado=True)
-            time.save()
-            messages.success(request, "Time criado com sucesso!")
-            return redirect('criar_carreira')
-        except:
+        caminho = 'static/img/default-team.png'
+        if not os.path.exists(caminho):
             messages.warning(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
+        else:
+            try:
+                time = Time(nome=nome, usuario=request.user, criado=True)
+                if request.FILES:
+                    logo = request.FILES['logo']
+                    time.logo = logo
+                else:
+                    with open(caminho, 'rb') as arquivo_imagem:
+                        time.logo.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
+                time.save()
+                messages.success(request, "Time criado com sucesso!")
+                return redirect('criar_carreira')
+            except:
+                messages.warning(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
+        return redirect('criar_carreira')
 
 
 
@@ -254,11 +277,19 @@ def contratar_jogador_novo(request):
     posicao = str(request.POST['posicao'])
     carreira = Carreira.objects.get(pk=carreira_id)
     time = carreira.time_atual
-    
     try:
-        jogador = Jogador(nome=nome, posicao=posicao, time=carreira.time_atual.nome, criado=True, usuario=request.user)
-        jogador.save()
-        
+        caminho = 'static/img/default-player.jpg'
+        if not os.path.exists(caminho):
+            messages.warning(request, "Ocorreu um erro ao adicionar o jogador. Verifique os dados e tente novamente.")
+        else:
+            jogador = Jogador(nome=nome, posicao=posicao, time=carreira.time_atual.nome, criado=True, usuario=request.user)
+            if request.FILES:
+                foto = request.FILES['jogador_foto']
+                jogador.foto = foto
+            else:
+                with open(caminho, 'rb') as arquivo_imagem:
+                    jogador.foto.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
+            jogador.save()
         car_tim_jog = CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
         car_tim_jog.save()
         messages.success(request, f"{jogador.nome} contratado!")
@@ -297,7 +328,7 @@ def estatisticas(request, carreira_id: int):
 @login_required
 def adicionar_estatistica(request, carreira_id):
     if request.method == "POST":
-        #carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
+        carreira = get_object_or_404(Carreira, pk=carreira_id, usuario=request.user)
         jogador_id = int(request.POST.get("jogador_id"))
         campeonato_id = request.POST.get("campeonato_id")
         temporada_id = request.POST.get("temporada_id")
@@ -321,8 +352,12 @@ def adicionar_estatistica(request, carreira_id):
                 assistencias=assistencias,
             )
             
+            
+            
+            
             return JsonResponse({
                 'id': estatistica.id,
+                'time_logo': carreira.time_atual.logo.url if carreira.time_atual.logo else None,
                 'jogador': carreira_time_jogador.jogador.nome,
                 "jogador_foto": carreira_time_jogador.jogador.foto.url if carreira_time_jogador.jogador.foto else None,
                 "temporada": temporada.data,

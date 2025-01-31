@@ -152,7 +152,8 @@
                         <th>Jogos</th>
                         <th>Gols</th>
                         <th>Assistências</th>
-                        <th>Ações</th>
+                        <th>Editar</th>
+                        <th>Excluir</th>
                     </tr>
                 </thead>
                 <tbody id="estatisticasTable">
@@ -173,7 +174,8 @@
                                 {% else %}
                                 <img src="{% static 'img/default-player.jpg' %}" class="me-2" alt="Foto padrão" style="width: 35px; height: 45px;" />
                                 {% endif %}
-                                {{ estatistica.carreira_time_jogador.jogador.nome }} - {{ estatistica.carreira_time_jogador.jogador.posicao }}
+                                {{ estatistica.carreira_time_jogador.jogador.nome }} -
+                                {{ estatistica.carreira_time_jogador.jogador.posicao }}
                             </div>
                         </td>
 
@@ -209,7 +211,8 @@
                         <td class="text-center">
                             <!-- Botão Editar -->
                             <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarEstatisticaModal{{ estatistica.id }}"><i class="bi bi-pencil-square"></i> Editar</button>
-
+                        </td>
+                        <td>
                             <!-- Botão Excluir -->
                             <form method="POST" action="{% url 'excluir_estatistica' estatistica.id %}" class="d-inline">
                                 {% csrf_token %}
@@ -299,6 +302,10 @@
                     row.setAttribute("data-temporada", data.temporada_id);
 
                     row.innerHTML = `
+                    <td>
+                        ${data.time_logo ? ` <img src="${data.time_logo}" alt="{{ estatistica.carreira_time_jogador.time.nome }}" style="width: 40px; height: 40px;;" />`
+                        : `<img src="{% static 'img/default-team.png' %}" class="me-2" style="width: 40px; height: 40px;" />`}
+                    </td>
                   <td>
                       <div class="d-flex align-items-center">
                           ${data.jogador_foto ? `<img src="${data.jogador_foto}" class="me-2" style="width: 35px; height: 45px; object-fit: cover;" />` 
@@ -319,7 +326,9 @@
                   <td>${data.assistencias}</td>
                   <td class="text-center">
                       <button class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> Editar</button>
-                      <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                  </td>
+                  <td>
+                    <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
                   </td>
               `;
 
@@ -336,6 +345,7 @@
             })
             .catch(error => console.error("Erro:", error));
     });
+
     function formatarTemporada(input) {
         let valor = input.value;
 
