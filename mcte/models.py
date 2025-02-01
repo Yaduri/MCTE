@@ -64,6 +64,7 @@ class Carreira(models.Model):
     time_atual = models.ForeignKey(Time, on_delete=models.CASCADE, related_name="carreiras")
     treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE, related_name="carreiras")
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carreiras")
+    temporada_atual_id = models.IntegerField(default=0)
     
     class Meta:
         unique_together = ('nome', 'usuario')

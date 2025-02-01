@@ -27,7 +27,7 @@
             <select class="form-select w-auto" id="filtroTemporada">
                 <option value="todas" selected>Todas</option>
                 {% for temporada in temporadas %}
-                <option value="{{ temporada.id }}">
+                <option value="{{ temporada.id }}" {% if carreira.temporada_atual_id == temporada.id %}selected{% endif %}>
                     {{ temporada.data }}
                 </option>
                 {% endfor %}
@@ -38,6 +38,11 @@
         <div>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTemporadaModal">
                 <i class="bi bi-plus-lg"></i> Nova temporada
+            </button>
+        </div>
+        <div class="ms-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#selecionarTemporadaModal">
+                Temporada Atual
             </button>
         </div>
     </div>
@@ -67,9 +72,41 @@
         </div>
     </div>
 
+    <div class="modal fade" id="selecionarTemporadaModal" tabindex="-1" aria-labelledby="selecionarTemporadaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selecionarTemporadaModalLabel">Adicionar Temporada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'selecionar_temporada' carreira.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="" class="form-label">Temporada</label>
+                            <select class="form-select w-auto" id="temporada_id" name="temporada_id">
+                                {% for temporada in temporadas %}
+                                <option value="{{ temporada.id }}">
+                                    {{ temporada.data }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Botão para abrir o modal -->
     <div class="text-center my-4">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adicionarEstatisticaModal"><i class="bi bi-plus-lg"></i> Adicionar Estatística</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adicionarEstatisticaModal">
+            <i class="bi bi-plus-lg"></i> Adicionar Estatística
+        </button>
     </div>
 
     <!-- Modal de Adicionar Estatística -->
@@ -111,7 +148,7 @@
                             <label for="temporada" class="form-label">Temporada</label>
                             <select class="form-select" id="temporada" name="temporada_id" required>
                                 {% for temporada in temporadas %}
-                                <option value="{{ temporada.id }}">
+                                <option value="{{ temporada.id }}" {% if carreira.temporada_atual_id == temporada.id %}selected{% endif %}>
                                     {{ temporada.data }}
                                 </option>
                                 {% endfor %}
@@ -277,6 +314,7 @@
             }
         });
     });
+    document.getElementById('filtroTemporada').dispatchEvent(new Event('change'));
     document.getElementById('adicionarEstatisticaForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -325,13 +363,16 @@
                   <td>${data.gols}</td>
                   <td>${data.assistencias}</td>
                   <td class="text-center">
-                      <button class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> Editar</button>
+                      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarEstatisticaModal{{ estatistica.id }}"><i class="bi bi-pencil-square"></i> Editar</button>
                   </td>
                   <td>
-                    <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    <form method="POST" action="estatistica/excluir/${data.id}/" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta estatística?');"><i class="bi bi-trash"></i> Excluir</button>
+                    </form>
                   </td>
               `;
-
+              
                     tabela.appendChild(row);
 
                     // Fechar o modal

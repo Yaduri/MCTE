@@ -119,22 +119,23 @@ def adicionar_temporada(request, id):
     return redirect('estatisticas', carreira_id=carreira.id)
 
 @login_required
+def selecionar_temporada(request, carreira_id:int):
+    carreira = get_object_or_404(Carreira, id=carreira_id, usuario=request.user)
+    if request.method == 'POST':
+        nome_temporada = int(request.POST.get('temporada_id'))
+        carreira.temporada_atual_id = nome_temporada
+        carreira.save()
+    return redirect('estatisticas', carreira_id=carreira.id)
+
+@login_required
 def adicionar_campeonato(request, carreira_id):
     if request.method == "POST":
         nome = request.POST.get('nome')
-        caminho = 'static/img/default-league.png'
-        if not os.path.exists(caminho):
-            messages.warning(request, "Ocorreu um erro ao criar o campeonato. Verifique os dados e tente novamente.")
-        else:
-            campeonato = Campeonato.objects.create(nome=nome, usuario=request.user)
-            if request.FILES:
-                logo = request.FILES['logo']
-                campeonato.logo = logo
-            else:
-                with open(caminho, 'rb') as arquivo_imagem:
-                    campeonato.logo.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
-            campeonato.save()
-        #logo = request.FILES.get('logo')
+        campeonato = Campeonato.objects.create(nome=nome, usuario=request.user)
+        if request.FILES:
+            logo = request.FILES['logo']
+            campeonato.logo = logo
+        campeonato.save()
         
         carreira = Carreira.objects.get(pk=carreira)
         carreira_campeonato = CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=True)
@@ -180,23 +181,16 @@ from django.conf import settings
 def criar_time(request):
     if request.method == "POST":
         nome = request.POST['nome']
-        caminho = 'static/img/default-team.png'
-        if not os.path.exists(caminho):
+        try:
+            time = Time(nome=nome, usuario=request.user, criado=True)
+            if request.FILES:
+                logo = request.FILES['logo']
+                time.logo = logo
+            time.save()
+            messages.success(request, "Time criado com sucesso!")
+            return redirect('criar_carreira')
+        except:
             messages.warning(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
-        else:
-            try:
-                time = Time(nome=nome, usuario=request.user, criado=True)
-                if request.FILES:
-                    logo = request.FILES['logo']
-                    time.logo = logo
-                else:
-                    with open(caminho, 'rb') as arquivo_imagem:
-                        time.logo.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
-                time.save()
-                messages.success(request, "Time criado com sucesso!")
-                return redirect('criar_carreira')
-            except:
-                messages.warning(request, "Ocorreu um erro ao criar o time. Verifique os dados e tente novamente.")
         return redirect('criar_carreira')
 
 
@@ -222,6 +216,9 @@ def minha_carreira(request, id=0):
         temporadas = Temporada.objects.filter(carreira=carreira)
         jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
         estatisticas = Estatistica.objects.filter(carreira_time_jogador__in=jogadores_atuais)
+        estatisticas = []
+        for jogador in jogadores_atuais:
+            estatisticas += list(jogador.estatisticas.all())
         
         #campeonato = Campeonato.objects.get(nome='Carabao Cup')
         #CarreiraCampeonato.objects.create(carreira=carreira, campeonato=campeonato, ativo=False)
@@ -278,18 +275,11 @@ def contratar_jogador_novo(request):
     carreira = Carreira.objects.get(pk=carreira_id)
     time = carreira.time_atual
     try:
-        caminho = 'static/img/default-player.jpg'
-        if not os.path.exists(caminho):
-            messages.warning(request, "Ocorreu um erro ao adicionar o jogador. Verifique os dados e tente novamente.")
-        else:
-            jogador = Jogador(nome=nome, posicao=posicao, time=carreira.time_atual.nome, criado=True, usuario=request.user)
-            if request.FILES:
-                foto = request.FILES['jogador_foto']
-                jogador.foto = foto
-            else:
-                with open(caminho, 'rb') as arquivo_imagem:
-                    jogador.foto.save(os.path.basename(caminho), File(arquivo_imagem), save=True)
-            jogador.save()
+        jogador = Jogador(nome=nome, posicao=posicao, time=carreira.time_atual.nome, criado=True, usuario=request.user)
+        if request.FILES:
+            foto = request.FILES['jogador_foto']
+            jogador.foto = foto
+        jogador.save()
         car_tim_jog = CarreiraTimeJogador.objects.create(carreira=carreira, time=time, jogador=jogador)
         car_tim_jog.save()
         messages.success(request, f"{jogador.nome} contratado!")
@@ -310,8 +300,9 @@ def estatisticas(request, carreira_id: int):
         Q(usuario=None) | Q(usuario_id=request.user.id)
     )"""
     jogadores_atuais = CarreiraTimeJogador.objects.filter(carreira=carreira, time_atual=True).order_by('-titular', ordem_posicoes)
+    jogadores_all = CarreiraTimeJogador.objects.filter(carreira=carreira).order_by('-titular', ordem_posicoes)
     estatisticas = []
-    for jogador in jogadores_atuais:
+    for jogador in jogadores_all:
         estatisticas += list(jogador.estatisticas.all())
 
     context = {
@@ -467,7 +458,7 @@ def pesquisar_jogadores(request):
     
     if query:
         # Filtrar jogadores com base na busca, excluindo os que já estão no time
-        jogadores = Jogador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id)).exclude(id__in=jogadores_no_time)[:7]
+        jogadores = Jogador.objects.filter(nome__icontains=query).filter(Q(usuario=None) | Q(usuario_id=request.user.id)).exclude(id__in=jogadores_no_time)[:20]
         resultados = [{'id': jogador.id, 'nome': jogador.nome, 'foto': jogador.foto.url if jogador.foto else ''} for jogador in jogadores]
     else:
         resultados = []

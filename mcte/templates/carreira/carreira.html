@@ -28,7 +28,7 @@
                 <select id="temporada" class="form-select selectpicker" data-live-search="true" name="temporada">
                     <option disabled selected value="">Escolha uma temporada</option>
                     {% for temporada in temporadas %}
-                    <option value="{{ temporada.id }}" {% if forloop.first %}selected{% endif %}>
+                    <option value="{{ temporada.id }}" {% if carreira.temporada_atual_id == temporada.id %}selected{% endif %}>
                         {{ temporada.data }}
                     </option>
                     {% endfor %}
