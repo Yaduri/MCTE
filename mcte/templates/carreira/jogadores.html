@@ -104,7 +104,7 @@
 
                     <!-- Aba Criar Novo -->
                     <div class="tab-pane fade" id="criar" role="tabpanel" aria-labelledby="criar-tab">
-                        <form id="criarJogadorForm" method="POST" action="{% url 'contratar_jogador_novo' %}?carreira_id={{ carreira.id }}">
+                        <form id="criarJogadorForm" method="POST" action="{% url 'contratar_jogador_novo' %}?carreira_id={{ carreira.id }}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="nomeJogador" class="form-label">Nome do Jogador</label>
@@ -130,7 +130,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="jogador_foto" class="form-label">Foto 140x180 (Opcional)</label>
-                                <input type="file" class="form-control" id="jogador_foto" name="foto" />
+                                <input type="file" class="form-control" id="jogador_foto" name="jogador_foto" />
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-outline-success">Salvar Jogador</button>

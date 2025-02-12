@@ -131,7 +131,7 @@ def selecionar_temporada(request, carreira_id:int):
 def adicionar_campeonato(request, carreira_id):
     if request.method == "POST":
         nome = request.POST.get('nome')
-        campeonato = Campeonato.objects.create(nome=nome, usuario=request.user)
+        campeonato = Campeonato(nome=nome, usuario=request.user)
         if request.FILES:
             logo = request.FILES['logo']
             campeonato.logo = logo
@@ -184,7 +184,7 @@ def criar_time(request):
         try:
             time = Time(nome=nome, usuario=request.user, criado=True)
             if request.FILES:
-                logo = request.FILES['logo']
+                logo = request.FILES['time_foto']
                 time.logo = logo
             time.save()
             messages.success(request, "Time criado com sucesso!")
@@ -202,6 +202,9 @@ def criar_treinador(request):
         nome = request.POST['nome']
         try:
             treinador = Treinador(nome=nome, usuario=request.user, criado=True)
+            if request.FILES:
+                foto = request.FILES['treinador_foto']
+                treinador.foto = foto
             treinador.save()
             messages.success(request, "Treinador criado com sucesso!")
             return redirect('criar_carreira')
@@ -267,6 +270,9 @@ def contratar_jogador_existente(request):
         messages.warning(request, f"Erro ao contratar!")
         return redirect('jogadores', carreira_id)
     
+from django import forms
+
+   
 @login_required
 def contratar_jogador_novo(request):
     carreira_id = int(request.GET['carreira_id'])

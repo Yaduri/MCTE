@@ -14,7 +14,7 @@ Criar Carreira
         <div class="col-12 col-md-8 col-lg-6">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <form method="POST" action="{% url 'criar_carreira' %}">
+                    <form method="POST" action="{% url 'criar_carreira' %}" enctype="multipart/form-data">
                         {% csrf_token %}
 
                         <!-- Campo Nome da Carreira -->
@@ -105,11 +105,15 @@ Criar Carreira
                         </form>
                     </div>
                     <div class="tab-pane fade" id="criar" role="tabpanel" aria-labelledby="criar-tab">
-                        <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data">
+                        <form method="POST" action="{% url 'criar_time' %}" enctype="multipart/form-data" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="time-nome" class="form-label">Nome do Time</label>
                                 <input type="text" class="form-control" id="time-nome" name="nome" placeholder="Nome do Time" required autocomplete="off">
+                            </div>
+                            <div class="mb-3">
+                                <label for="time_foto" class="form-label">Logo do Time (Opcional)</label>
+                                <input type="file" class="form-control" id="time_foto" name="time_foto" />
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Adicionar</button>
@@ -155,11 +159,15 @@ Criar Carreira
                         </form>
                     </div>
                     <div class="tab-pane fade" id="criar2" role="tabpanel" aria-labelledby="criar-tab2">
-                        <form method="POST" action="{% url 'criar_treinador' %}">
+                        <form method="POST" action="{% url 'criar_treinador' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="treinador-nome" class="form-label">Nome do Treinador</label>
                                 <input type="text" class="form-control" id="treinador-nome" name="nome" placeholder="Nome do Treinador" required autocomplete="off">
+                            </div>
+                            <div class="mb-3">
+                                <label for="treinador_foto" class="form-label">Foto 140x180 (Opcional)</label>
+                                <input type="file" class="form-control" id="treinador_foto" name="treinador_foto" />
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Adicionar</button>
